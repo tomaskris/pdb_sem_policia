@@ -1,0 +1,17 @@
+1) Vytvorenie tabuliek
+   -spustite cely script s nazvom vygenerovany_model.sql
+2) Presunutie adresara
+   -presunte adresar s nazvom blob_files_police do adresara na ceste '/home/Asterix/tvoj_login/'
+   -skontrolujte ci tento presunuty priecinok ma vsetky prava pre vsetkych
+3) Vytvorenie oraclovskeho adresara
+   -otvorte script s nazvom oracle_dir_semka.sql a nahradte login kris2 svojim loginom
+   -spustite cely script
+4) Vytvorenie funkcii pre pracu s blobmi
+   -spustite cely script s nazvom fcie_BLOB_CLOB.sql
+4) Insert dat
+   -spustite cely script s nazvom inserty.sql
+   -insertnu sa potrebne data pre generovanie
+5) Generovanie dat
+   -spustite cely script s nazvom generovanie_dat.sql
+
+-------------------------------THAT'S ALL-----------------------------------
