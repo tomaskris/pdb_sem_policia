@@ -1,10 +1,14 @@
 set serveroutput on;
+set long 2000
+set linesize 1000;
+set pagesize 0;
 
 -- 1) Podrobný preh¾ad o vyšetrovaných prípadoch.
 create or replace procedure proc_prehlad_pripadov is 
   cursor cur_pripad is 
     select pr.id_pripadu as id_p, decode(tp.nazov_typu,'C','trestny cin', 'priestupok') || ', ' || tp.druh_pripadu as tp,
-      me.nazov as mv, decode(pr.dat_vykon, NULL, 'neznamy', to_char(pr.dat_vykon,'DD.MM.YYYY')) as dvy, pr.dat_zac as zv
+      me.nazov as mv, decode(pr.dat_vykon, NULL, 'neznamy', to_char(pr.dat_vykon,'DD.MM.YYYY')) as dvy, pr.dat_zac as zv,
+      decode(pr.dat_ukon, NULL, 'neznamy', to_char(pr.dat_ukon,'DD.MM.YYYY')) as kv, decode(pr.objasneny, 'A', 'objasneny','neobjasneny') as p_obs
     from s_pripad pr join s_typ_pripadu tp on(pr.id_typ_pripadu = tp.id_typ_pripadu)
       join s_mesto me on(pr.miesto_vykon = me.psc)
     where pr.id_pripadu between 1 and 20--pr.objasneny = 'N' and pr.id_pripadu in (1, 2,3, 4)
@@ -50,7 +54,9 @@ begin
     dbms_output.put_line('ID Pripadu: ' || i_pripad.id_p);
     dbms_output.put_line('.   ' || rpad('Typ pripadu: ',13) || rpad(i_pripad.tp,100));
     dbms_output.put_line('.   ' || rpad('Datum vykonania: ',17) || rpad(i_pripad.dvy,15)
-                           || rpad('Datum zaciatku vysetrovania: ',29) || rpad(i_pripad.zv,15));
+                           || rpad('Zaciatok vysetrovania: ',23) || rpad(i_pripad.zv,15)
+                           || rpad('Koniec vysetrovania: ',21) || rpad(i_pripad.kv,15));
+    dbms_output.put_line('.   ' || rpad('Objasnenost: ',13) || rpad(i_pripad.p_obs,15));
     dbms_output.put_line('.   ' || rpad('Miesto vykonania: ',18) || rpad(i_pripad.mv,15));
     
     akt_osoba := 1;
@@ -111,4 +117,127 @@ end;
 
 execute proc_prehlad_pripadov;
 
+-- 2) Zoznam trestných èinov a priestupkov za urèité obdobie rozdelený pod¾a druhu trestného èinu.
+create or replace procedure proc_trest_ciny_za_obd(od date, do date) is
+ cursor cur_ciny is
+  select tp.id_typ_pripadu as id_typ, decode(tp.nazov_typu, 'C','trestny cin','priestupok') as n_typ, tp.druh_pripadu as d_typ
+  from s_typ_pripadu tp;
+  
+ cursor cur_prip(druh s_typ_pripadu.druh_pripadu%type) is
+  select me.nazov as mesto, decode(pr.dat_vykon, NULL, 'neznamy', to_char(pr.dat_vykon,'DD.MM.YYYY')) as dvy, pr.dat_zac as zv,
+   decode(pr.dat_ukon, NULL, 'neznamy', to_char(pr.dat_ukon,'DD.MM.YYYY')) as kv, decode(pr.objasneny, 'A', 'objasneny','neobjasneny') as p_obs
+  from s_pripad pr join s_typ_pripadu tp on(pr.id_typ_pripadu = tp.id_typ_pripadu)
+   join s_mesto me on(pr.miesto_vykon = me.psc)
+  where (pr.dat_zac between od and do)
+   and tp.druh_pripadu = druh;
+ 
+ v_cin cur_ciny%ROWTYPE;
+ v_pripad cur_prip%ROWTYPE;
+ akt_prip integer;
+begin
+ open cur_ciny;
+  loop
+   fetch cur_ciny into v_cin;
+   exit when cur_ciny%notfound;
+   akt_prip := 1;
+   open cur_prip(v_cin.d_typ);
+    loop
+     fetch cur_prip into v_pripad;
+     exit when cur_prip%notfound;
+     if(akt_prip = 1) then
+      dbms_output.put_line('Typ pripadu: ' || v_cin.n_typ || ', ' || (v_cin.d_typ));
+      dbms_output.put_line('.   ' || rpad('Pc.',4) || rpad('Miesto vykon',20) || rpad('Dat vykon',12) || rpad('Objasnenost',13)
+                           || rpad('Zac vyset', 12) || rpad('Kon vyset', 12));
+     end if; 
+     dbms_output.put_line('.   ' || rpad(akt_prip,4) || rpad(v_pripad.mesto,20) || rpad(v_pripad.dvy,12) || rpad(v_pripad.p_obs,13)
+                          || rpad(v_pripad.zv, 12) || rpad(v_pripad.kv, 12));
+     akt_prip := akt_prip + 1;
+    end loop;
+   close cur_prip;
+  end loop;
+ close cur_ciny;
+end;
+/
 
+execute proc_trest_ciny_za_obd(to_date('01.01.2002'), to_date('01.01.2003'));
+
+-- 3) Štatistika trestných èinov pod¾a regiónov, miest, obvodov. 
+--podla regionov
+select reg.nazov as region, 
+    sum(case when (typ.nazov_typu = 'C') then 1 else 0 end) as poc_trest_cinov,
+    sum(case when (typ.nazov_typu = 'P') then 1 else 0 end) as poc_priestupkov
+from s_region reg join s_mesto mes on(reg.id_regionu = mes.id_regionu)
+  join s_pripad pr on(pr.miesto_vykon = mes.psc)
+  join s_typ_pripadu typ on(typ.id_typ_pripadu = pr.id_typ_pripadu)
+group by reg.nazov;
+
+--podla miest
+select mes.nazov as mesto, 
+    sum(case when (typ.nazov_typu = 'C') then 1 else 0 end) as poc_trest_cinov,
+    sum(case when (typ.nazov_typu = 'P') then 1 else 0 end) as poc_priestupkov
+from s_mesto mes join s_pripad pr on(pr.miesto_vykon = mes.psc)
+  join s_typ_pripadu typ on(typ.id_typ_pripadu = pr.id_typ_pripadu)
+group by mes.nazov
+order by mes.nazov;
+
+--podla obvodov
+select obv.nazov as obvod, 
+    sum(case when (typ.nazov_typu = 'C') then 1 else 0 end) as poc_trest_cinov,
+    sum(case when (typ.nazov_typu = 'P') then 1 else 0 end) as poc_priestupkov
+from s_obvod obv join s_pripad pr on(pr.id_obvodu = obv.id_obvodu)
+  join s_typ_pripadu typ on(typ.id_typ_pripadu = pr.id_typ_pripadu)
+group by obv.nazov
+order by obv.nazov;
+
+--EXPORT vysledkov statistik do XML
+
+--podla regionov
+select XMLRoot(XMLElement("regiony", nr), version '1.0') as xml
+from
+  (select XMLAgg(
+    XMLElement("region",
+    XMLAttributes(reg.nazov as "nazov"),
+    XMLForest(
+      sum(case when (typ.nazov_typu = 'C') then 1 else 0 end) as "poc_trest_cinov", 
+      sum(case when (typ.nazov_typu = 'P') then 1 else 0 end) as "poc_priestupkov"
+      )
+    )
+  ) as nr
+from s_region reg join s_mesto mes on(reg.id_regionu = mes.id_regionu)
+  join s_pripad pr on(pr.miesto_vykon = mes.psc)
+  join s_typ_pripadu typ on(typ.id_typ_pripadu = pr.id_typ_pripadu)
+group by reg.nazov);
+
+--podla miest
+select XMLRoot(XMLElement("mesta", nr), version '1.0') as xml
+from
+  (select XMLAgg(
+    XMLElement("mesto",
+    XMLAttributes(mes.nazov as "nazov"),
+    XMLForest(
+      sum(case when (typ.nazov_typu = 'C') then 1 else 0 end) as "poc_trest_cinov", 
+      sum(case when (typ.nazov_typu = 'P') then 1 else 0 end) as "poc_priestupkov"
+      )
+    )
+  order by mes.nazov) as nr
+from s_mesto mes join s_pripad pr on(pr.miesto_vykon = mes.psc)
+  join s_typ_pripadu typ on(typ.id_typ_pripadu = pr.id_typ_pripadu)
+group by mes.nazov
+order by mes.nazov);
+
+--podla obvodov
+select XMLRoot(XMLElement("obvody", nr), version '1.0') as xml
+from
+  (select XMLAgg(
+    XMLElement("obvod",
+    XMLAttributes(obv.nazov as "nazov"),
+    XMLForest(
+      sum(case when (typ.nazov_typu = 'C') then 1 else 0 end) as "poc_trest_cinov", 
+      sum(case when (typ.nazov_typu = 'P') then 1 else 0 end) as "poc_priestupkov"
+      )
+    )
+  order by obv.nazov) as nr
+from s_obvod obv join s_pripad pr on(pr.id_obvodu = obv.id_obvodu)
+  join s_typ_pripadu typ on(typ.id_typ_pripadu = pr.id_typ_pripadu)
+group by obv.nazov
+order by obv.nazov);
