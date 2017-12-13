@@ -1,4 +1,7 @@
 --DROPNUTIE TABULIEK
+
+desc os_udaje;
+
 /*
 Drop table s_obzalovana_osoba;
 Drop table s_historia_funkcii;
@@ -19,6 +22,7 @@ Drop table s_biom_udaje;
 Drop table s_vaznica;
 Drop table s_typ_pripadu;
 */
+
 --VYTVORENIE TABULIEK
 
 Create table s_osoba (

@@ -121,7 +121,6 @@ public class DatabaseSelecter<T> extends AbstractDatabaseHandler<T> {
                         field.getName(), type);
 
                 Method method = propertyDescriptor.getWriteMethod();
-
                 method.invoke(instance, value);
             }
 

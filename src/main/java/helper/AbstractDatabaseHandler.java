@@ -15,13 +15,7 @@ public abstract class AbstractDatabaseHandler<T> {
      * The type of the objects that should be created and filled with values
      * from the database or inserted into the database
      */
-    protected Class<T>     type;
-
-    /**
-     * Contains the settings to create a connection to the database like
-     * host/port/database/user/password
-     */
-//    protected DatabaseConnecter     databaseConnecter;
+    protected Class<T> type;
 
     /** The SQL-select-query */
     protected final String     query;
@@ -36,12 +30,11 @@ public abstract class AbstractDatabaseHandler<T> {
      *            Contains the settings to create a connection to the database
      *            like host/port/database/user/password
      */
-    protected AbstractDatabaseHandler(Class<T> type/*,
-                                      DatabaseConnecter databaseConnecter*/) {
+    protected AbstractDatabaseHandler(Class<T> type) {
 
-//        this.databaseConnecter = databaseConnecter;
         this.type = type;
         this.query = createQuery();
+        System.out.println(this.query);
     }
 
     /**

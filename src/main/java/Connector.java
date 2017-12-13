@@ -14,11 +14,9 @@ public class Connector {
             String url = "jdbc:oracle:thin:@asterix.fri.uniza.sk:1521/orclpdb.fri.uniza.sk";
             String username = "xxx";
             String password = "xxx";
-            throw new Error("Treba tu odkomentovat riadok a vyplnit prihlasovacie udaje");
-
 
             Class.forName("oracle.jdbc.OracleDriver");
-
+            //throw new Error("Treba tu odkomentovat riadok a vyplnit prihlasovacie udaje");
 
             Connection connection = DriverManager.getConnection( url, username, password);
             System.out.println("You madee it, take control your database now!");
