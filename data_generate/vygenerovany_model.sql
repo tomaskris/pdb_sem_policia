@@ -15,12 +15,26 @@ Drop table s_osoba;
 drop type t_vypoved;
 drop type t_rec_vypoved;
 Drop table s_pripad;
-Drop table s_obvod;
-Drop table s_mesto;
-Drop table s_region;
 Drop table s_biom_udaje;
 Drop table s_vaznica;
 Drop table s_typ_pripadu;
+Drop table s_obvod;
+Drop table s_mesto;
+Drop table s_region;
+
+
+--drop vsetky seqvencie
+
+drop sequence sekv_id_biom_udaje;
+drop sequence sekv_id_zamestnanec;
+drop sequence sekv_id_pripad;
+drop sequence sekv_id_osoba_pripadu;
+drop sequence sekv_id_vypovede;
+drop sequence sekv_id_hladanej;
+drop sequence sekv_id_odsudeneho;
+drop sequence sekv_id_obzalovaneho;
+drop sequence sekv_id_obvod;
+drop table pom_tab_psc;
 */
 
 --VYTVORENIE TABULIEK
@@ -151,7 +165,7 @@ Create table s_pripad (
 	id_typ_pripadu Integer NOT NULL ,
 	id_obvodu Integer NOT NULL ,
 	miesto_vykon Char (5) NOT NULL ,
-	dat_vykon Date NOT NULL ,
+	dat_vykon Date ,
 	objasneny Char (1) NOT NULL  Check (objasneny in ('A','N') ) ,
 	dat_zac Date NOT NULL ,
 	dat_ukon Date,
