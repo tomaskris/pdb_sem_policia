@@ -537,8 +537,8 @@ begin
  select count(*) into size_tab_vaznice from s_vaznica;
  --ulozim si id vaznice pre vazna
  vaznica := round(dbms_random.value(1,size_tab_vaznice));
- --vygenerujem nahodne dlzku trestu od priblizne jedneho mesiaca az po 10 rokov 
- dlzka_trest := round(dbms_random.value(30,(10*365)));
+ --vygenerujem nahodne dlzku trestu od priblizne 1 az po 80 rokov 
+ dlzka_trest := round(dbms_random.value(1,80));
  --ak bolo ukoncene hladanie, tak datum nastupu bude medzi, datumom 
  if(dat_ukon_hlad is not null) then
   dat_nastupu := get_nahodny_datum(dat_ukon_hlad, (dat_ukon_hlad + round(dbms_random.value(0,50))));
@@ -583,56 +583,55 @@ begin
  for i in 1..poc_osob_pripadu loop
   --nahodne vygenerujem osobu_pripadu
   rc := get_random_osoba;
-  --vygenerujem typ osoby pripadu
-  case round(dbms_random.value(1,2))
-   --ak je to 1,tak je to svedok
-   when 1 then 
-    typ := 'S';
-    --insertnem osobu pripadu
-    insert into s_osoba_pripadu(id_pripadu, rod_cislo, typ_osoby) values(pripad, rc, typ);
-    --nahodne si vygenerujem pocet vypovedi
-    poc_vypovedi := round(dbms_random.value(1,2));
-    --pre kazdu vypoved
-    /*
-    for vyp in 1..poc_vypovedi loop
-     proc_insert_vypoved(cur_id_osoba_pripadu);
-    end loop;
-    */
-   --ak je to 2,tak je to podozriva osoba
-   when 2 then
-    typ := 'P';
-    --insertnem osobu pripadu
-    insert into s_osoba_pripadu(id_pripadu, rod_cislo, typ_osoby) values(pripad, rc, typ);
-    --nahodne zistim ci tato podozriva osoba bola obzalovana (1-ano, 0-nie)
-    if(round(dbms_random.value(0,1)) = 1) then
-     --obzalovana osoba sposobila nahodnu skodu
-     skoda := round(dbms_random.value(100, 10000));
-     --pokuta, ktoru musi obzalovana osoba zaplatit
-     pokuta := round(dbms_random.value(skoda, (skoda * 2)));
-     --insertnem obzalovanu osobu
-     insert into s_obzalovana_osoba(id_pripadu, rod_cislo, vyska_skody, udelena_pokuta) values(pripad, rc, skoda, pokuta);
-     --nahodne zistim ci tato obzalovana osoba je hladana (1-ano, 0-nie)
-     if(round(dbms_random.value(0,1)) = 1) then
-      --hladana osoba na ktory je vydany prikaz na zatknutie
-      dat_ukon_hlad := fun_insert_hladany(pripad, rc, 'PNZ', dat_zac_prip, dat_ukon_prip);
-      --ak hladana osoba bola najdena
-      if (dat_ukon_hlad is not null) then
-       --tak hodim osobu do lochu
-       proc_insert_odsudeny(pripad, rc, dat_zac_prip, dat_ukon_hlad);
-      end if;
-     else
-      --ak obzalovana osoba nie je hladana, tak hned sa supne do lochu
-      proc_insert_odsudeny(pripad, rc, dat_zac_prip, dat_ukon_hlad);
-     end if; 
-    else 
-     --ak podozriva osoba nie je obzalovana
-     --nahodne zistim ci tato podozriva osoba je hladana (1-ano, 0-nie)
-     if(round(dbms_random.value(0,1)) = 1) then
-      --hladana osoba na ktorej je podozrenie zo spachania trestneho cinu
-      dat_ukon_hlad := fun_insert_hladany(pripad, rc, 'PST', dat_zac_prip, dat_ukon_prip);
-     end if;
+  typ := 'P';
+  --insertnem osobu pripadu
+  insert into s_osoba_pripadu(id_pripadu, rod_cislo, typ_osoby) values(pripad, rc, typ);
+  --nahodne zistim ci tato podozriva osoba bola obzalovana (1-ano, 0-nie)
+  if(round(dbms_random.value(0,1)) = 1) then
+   --obzalovana osoba sposobila nahodnu skodu
+   skoda := round(dbms_random.value(10, 2000));
+   --pokuta, ktoru musi obzalovana osoba zaplatit
+   pokuta := round(dbms_random.value(skoda, (skoda * 2)));
+   --insertnem obzalovanu osobu
+   insert into s_obzalovana_osoba(id_pripadu, rod_cislo, vyska_skody, udelena_pokuta) values(pripad, rc, skoda, pokuta);
+   --nahodne zistim ci tato obzalovana osoba je hladana (1-ano, 0-nie)
+   if(round(dbms_random.value(0,1)) = 1) then
+    --hladana osoba na ktory je vydany prikaz na zatknutie
+    dat_ukon_hlad := fun_insert_hladany(pripad, rc, 'PNZ', dat_zac_prip, dat_ukon_prip);
+    --ak hladana osoba bola najdena
+    if (dat_ukon_hlad is not null) then
+     --tak hodim osobu do lochu
+     proc_insert_odsudeny(pripad, rc, dat_zac_prip, dat_ukon_hlad);
     end if;
-  end case;
+   else
+    --ak obzalovana osoba nie je hladana, tak hned sa supne do lochu
+   proc_insert_odsudeny(pripad, rc, dat_zac_prip, dat_ukon_hlad);
+   end if; 
+  else 
+   --ak podozriva osoba nie je obzalovana
+   --nahodne zistim ci tato podozriva osoba je hladana (1-ano, 0-nie)
+   if(round(dbms_random.value(0,1)) = 1) then
+    --hladana osoba na ktorej je podozrenie zo spachania trestneho cinu
+    dat_ukon_hlad := fun_insert_hladany(pripad, rc, 'PST', dat_zac_prip, dat_ukon_prip);
+   end if;
+  end if;
+ end loop;
+ 
+ --nahodne vygenerujem pocet svedkov trestneho cinu
+ poc_osob_pripadu := round(dbms_random.value(0,3));
+ for i in 1..poc_osob_pripadu loop
+  --nahodne vygenerujem osobu_pripadu
+  rc := get_random_osoba;
+  typ := 'S';
+    --nahodne si vygenerujem pocet vypovedi
+  poc_vypovedi := round(dbms_random.value(0,1));
+  if(poc_vypovedi = 1) then
+    --insertnem osobu pripadu aj s nahodnou vypovedou
+    insert into s_osoba_pripadu(id_pripadu, rod_cislo, typ_osoby, vypoved) values(pripad, rc, typ, t_vypoved(get_rand_t_rec_vypoved));
+  else 
+    --insertnem osobu pripadu bez vypovede
+    insert into s_osoba_pripadu(id_pripadu, rod_cislo, typ_osoby) values(pripad, rc, typ);
+  end if;
  end loop;
 end;
 /
@@ -690,34 +689,34 @@ create or replace procedure proc_rand_priestupok(pripad integer)
  rc s_osoba.rod_cislo%type;
  poc_vypovedi integer;
 begin
- --nahodne vygenerujem pocet osob pripadu
- poc_osob_pripadu := round(dbms_random.value(1,5));
+ --nahodne vygenerujem pocet obvinenych z priestupku
+ poc_osob_pripadu := round(dbms_random.value(1,3));
  for i in 1..poc_osob_pripadu loop
   --nahodne vygenerujem osobu_pripadu
   rc := get_random_osoba;
-  --vygenerujem typ osoby pripadu, ci je to svedok, alebo obvineny zo spachania priestupku
-  case (round(dbms_random.value(1,2)))
-   --ak je to 1,tak je to svedok
-   when 1 then 
-    typ := 'S';
+  --obzalovana osoba sposobila nahodnu skodu
+  skoda := round(dbms_random.value(10, 2000));
+  --pokuta, ktoru musi obzalovana osoba zaplatit
+  pokuta := round(dbms_random.value(skoda, (skoda * 2)));
+  --insertnem obzalovanu osobu
+  insert into s_obzalovana_osoba(id_pripadu, rod_cislo, vyska_skody, udelena_pokuta) values(pripad, rc, skoda, pokuta);
+ end loop;
+ 
+ --nahodne vygenerujem pocet svedkov
+ poc_osob_pripadu := round(dbms_random.value(0,3));
+ for i in 1..poc_osob_pripadu loop
+  --nahodne vygenerujem osobu_pripadu
+  rc := get_random_osoba;
+  typ := 'S';
     --nahodne si vygenerujem pocet vypovedi
-    poc_vypovedi := round(dbms_random.value(0,1));
-    if(poc_vypovedi = 1) then
-     --insertnem osobu pripadu aj s nahodnou vypovedou
-     insert into s_osoba_pripadu(id_pripadu, rod_cislo, typ_osoby, vypoved) values(pripad, rc, typ, t_vypoved(get_rand_t_rec_vypoved));
-    else 
-     --insertnem osobu pripadu bez vypovede
-     insert into s_osoba_pripadu(id_pripadu, rod_cislo, typ_osoby) values(pripad, rc, typ);
-    end if;
-   --ak je to 2,tak je to podozriva osoba
-   when 2 then
-    --obzalovana osoba sposobila nahodnu skodu
-    skoda := round(dbms_random.value(100, 10000));
-    --pokuta, ktoru musi obzalovana osoba zaplatit
-    pokuta := round(dbms_random.value(skoda, (skoda * 2)));
-    --insertnem obzalovanu osobu
-    insert into s_obzalovana_osoba(id_pripadu, rod_cislo, vyska_skody, udelena_pokuta) values(pripad, rc, skoda, pokuta);
-  end case;
+  poc_vypovedi := round(dbms_random.value(0,1));
+  if(poc_vypovedi = 1) then
+    --insertnem osobu pripadu aj s nahodnou vypovedou
+    insert into s_osoba_pripadu(id_pripadu, rod_cislo, typ_osoby, vypoved) values(pripad, rc, typ, t_vypoved(get_rand_t_rec_vypoved));
+  else 
+    --insertnem osobu pripadu bez vypovede
+    insert into s_osoba_pripadu(id_pripadu, rod_cislo, typ_osoby) values(pripad, rc, typ);
+  end if;
  end loop;
 end;
 /
@@ -739,7 +738,7 @@ create or replace procedure proc_insert_pripady is
  size_tab_typ_pripad integer;
  cur_id_pripad integer;
 begin
- for prip in 1..500 loop
+ for prip in 1..1000 loop
  --PRE JEDEN PRIPAD V DANY DATUM 
  --pocet riadov tabulky s_obvod
  select count(*) into size_tab_obvod from s_obvod;
@@ -747,25 +746,33 @@ begin
  select count(*) into size_tab_pom_psc from pom_tab_psc;
  --ulozim si velkost tabulky s_typ_pripadu
  select count(*) into size_tab_typ_pripad from s_typ_pripadu;
- --pripady maximalne 30 rokov dozadu
- dat_pripadu := get_nahodny_datum(add_months(sysdate, (-12*30)), sysdate);
- --pocet pripadov v takom datume od 1 po 5
- poc_pripadov := round(dbms_random.value(1, 5));
+ --nie vzdy sa vie, kedy sa pripad stal.. ak nasli mrtve telo vo vode, tak nevedno kedy sa stal ten pripad
+ if (round(dbms_random.value(0, 1)) = 1) then
+  --ak sa vie, kedy sa stal pripad
+  --pripady maximalne 30 rokov dozadu
+  dat_pripadu := get_nahodny_datum(add_months(sysdate, (-12*30)), sysdate);
+  --vygenerujem si kedy sa pripad zacal riesit
+  dat_zac_prip := get_nahodny_datum(dat_pripadu, (dat_pripadu + 10));
+ else 
+  dat_pripadu := null;
+  dat_zac_prip := get_nahodny_datum(add_months(sysdate, (-12*30)), sysdate);
+ end if;
+ --pocet pripadov v takom datume od 1 po 2
+ poc_pripadov := round(dbms_random.value(1, 2));
  --nahodne vygenerovany obvod
  rand_obvod := round(dbms_random.value(1, size_tab_obvod));
  --nahodne vygenerovane miesto
  rand_miesto := get_psc(ROUND(dbms_random.value(1, size_tab_pom_psc)));
  --zistim si id_obvodu podla obce, na zaklade ktore viem pod ktory PZ patri
  select id_obvodu into obvod_pripadu from s_mesto where psc = rand_miesto;
- --vygenerujem si kedy sa pripad zacal riesit
- dat_zac_prip := get_nahodny_datum(dat_pripadu, (dat_pripadu + 10));
  --nahodne vygenerujem ci bol pripad objasneny
- if(round(dbms_random.value(1, 2)) = 1) then
+ if(round(dbms_random.value(0, 1)) = 1) then
   objasneny := 'A';
   --ak bol pripad objasneny tam mu nastavim dattum ukoncenia pripadu
   dat_ukon_prip := get_nahodny_datum(dat_zac_prip, sysdate);
  else 
   objasneny := 'N';
+  dat_ukon_prip := null;
  end if;
  
  --vygenerujem tolko pripadov v ten isty den
@@ -796,14 +803,4 @@ execute proc_insert_pripady;
 --odstranim pomocnu tabulku
 drop table pom_tab_psc;
 
---drop vsetky seqvencie
-/*
-drop sequence sekv_id_biom_udaje;
-drop sequence sekv_id_zamestnanec;
-drop sequence sekv_id_pripad;
-drop sequence sekv_id_osoba_pripadu;
-drop sequence sekv_id_vypovede;
-drop sequence sekv_id_hladanej;
-drop sequence sekv_id_odsudeneho;
-drop sequence sekv_id_obzalovaneho;
-*/
+commit;
