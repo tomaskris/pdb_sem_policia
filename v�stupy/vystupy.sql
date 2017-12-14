@@ -165,7 +165,8 @@ execute proc_trest_ciny_za_obd(to_date('01.01.2002'), to_date('01.01.2003'));
 --podla regionov
 select reg.nazov as region, 
     sum(case when (typ.nazov_typu = 'C') then 1 else 0 end) as poc_trest_cinov,
-    sum(case when (typ.nazov_typu = 'P') then 1 else 0 end) as poc_priestupkov
+    sum(case when (typ.nazov_typu = 'P') then 1 else 0 end) as poc_priestupkov,
+    count(*) as spolu
 from s_region reg join s_mesto mes on(reg.id_regionu = mes.id_regionu)
   join s_pripad pr on(pr.miesto_vykon = mes.psc)
   join s_typ_pripadu typ on(typ.id_typ_pripadu = pr.id_typ_pripadu)
@@ -174,7 +175,8 @@ group by reg.nazov;
 --podla miest
 select mes.nazov as mesto, 
     sum(case when (typ.nazov_typu = 'C') then 1 else 0 end) as poc_trest_cinov,
-    sum(case when (typ.nazov_typu = 'P') then 1 else 0 end) as poc_priestupkov
+    sum(case when (typ.nazov_typu = 'P') then 1 else 0 end) as poc_priestupkov,
+    count(*) as spolu
 from s_mesto mes join s_pripad pr on(pr.miesto_vykon = mes.psc)
   join s_typ_pripadu typ on(typ.id_typ_pripadu = pr.id_typ_pripadu)
 group by mes.nazov
@@ -183,7 +185,8 @@ order by mes.nazov;
 --podla obvodov
 select obv.nazov as obvod, 
     sum(case when (typ.nazov_typu = 'C') then 1 else 0 end) as poc_trest_cinov,
-    sum(case when (typ.nazov_typu = 'P') then 1 else 0 end) as poc_priestupkov
+    sum(case when (typ.nazov_typu = 'P') then 1 else 0 end) as poc_priestupkov,
+    count(*) as spolu
 from s_obvod obv join s_pripad pr on(pr.id_obvodu = obv.id_obvodu)
   join s_typ_pripadu typ on(typ.id_typ_pripadu = pr.id_typ_pripadu)
 group by obv.nazov
@@ -199,7 +202,8 @@ from
     XMLAttributes(reg.nazov as "nazov"),
     XMLForest(
       sum(case when (typ.nazov_typu = 'C') then 1 else 0 end) as "poc_trest_cinov", 
-      sum(case when (typ.nazov_typu = 'P') then 1 else 0 end) as "poc_priestupkov"
+      sum(case when (typ.nazov_typu = 'P') then 1 else 0 end) as "poc_priestupkov",
+      count(*) as "spolu"
       )
     )
   ) as nr
@@ -216,7 +220,8 @@ from
     XMLAttributes(mes.nazov as "nazov"),
     XMLForest(
       sum(case when (typ.nazov_typu = 'C') then 1 else 0 end) as "poc_trest_cinov", 
-      sum(case when (typ.nazov_typu = 'P') then 1 else 0 end) as "poc_priestupkov"
+      sum(case when (typ.nazov_typu = 'P') then 1 else 0 end) as "poc_priestupkov",
+      count(*) as "spolu"
       )
     )
   order by mes.nazov) as nr
@@ -233,7 +238,8 @@ from
     XMLAttributes(obv.nazov as "nazov"),
     XMLForest(
       sum(case when (typ.nazov_typu = 'C') then 1 else 0 end) as "poc_trest_cinov", 
-      sum(case when (typ.nazov_typu = 'P') then 1 else 0 end) as "poc_priestupkov"
+      sum(case when (typ.nazov_typu = 'P') then 1 else 0 end) as "poc_priestupkov",
+      count(*) as "spolu"
       )
     )
   order by obv.nazov) as nr
@@ -241,3 +247,150 @@ from s_obvod obv join s_pripad pr on(pr.id_obvodu = obv.id_obvodu)
   join s_typ_pripadu typ on(typ.id_typ_pripadu = pr.id_typ_pripadu)
 group by obv.nazov
 order by obv.nazov);
+
+-- 4) Štatistika (poèty) trestných èinov rôznych druhov, zoradená od najèastejšie sa vyskytujúceho druhu po najzriedkavejšie.
+select typ.druh_pripadu as obvod, count(*) as poc_pripadov
+from s_pripad pr right join s_typ_pripadu typ on(typ.id_typ_pripadu = pr.id_typ_pripadu)
+group by typ.druh_pripadu
+order by poc_pripadov desc;
+
+-- 5) Štatistické  vyhodnotenie spôsobenej škody pod¾a rôznych kritérií.
+--podla regionov
+select reg.nazov as region, 
+    sum(case when (typ.nazov_typu = 'C') then obo.vyska_skody else 0 end) as vyska_skody_trest_cinov,
+    sum(case when (typ.nazov_typu = 'P') then obo.vyska_skody else 0 end) as vyska_skody_priestupkov,
+    sum(case when (obo.vyska_skody is not null) then obo.vyska_skody else 0 end) as vyska_skody_spolu
+from s_region reg join s_mesto mes on(reg.id_regionu = mes.id_regionu)
+  join s_pripad pr on(pr.miesto_vykon = mes.psc)
+  join s_typ_pripadu typ on(typ.id_typ_pripadu = pr.id_typ_pripadu)
+  join s_obzalovana_osoba obo on(obo.id_pripadu = pr.id_pripadu)
+group by reg.nazov
+order by vyska_skody_spolu desc;
+
+--podla miest
+select mes.nazov as mesto, 
+    sum(case when (typ.nazov_typu = 'C') then obo.vyska_skody else 0 end) as vyska_skody_trest_cinov,
+    sum(case when (typ.nazov_typu = 'P') then obo.vyska_skody else 0 end) as vyska_skody_priestupkov,
+    sum(case when (obo.vyska_skody is not null) then obo.vyska_skody else 0 end) as vyska_skody_spolu
+from s_mesto mes join s_pripad pr on(pr.miesto_vykon = mes.psc)
+  join s_typ_pripadu typ on(typ.id_typ_pripadu = pr.id_typ_pripadu)
+  join s_obzalovana_osoba obo on(obo.id_pripadu = pr.id_pripadu)
+group by mes.nazov
+order by vyska_skody_spolu desc;
+
+--podla obvodov
+select obv.nazov as obvod, 
+    sum(case when (typ.nazov_typu = 'C') then obo.vyska_skody else 0 end) as vyska_skody_trest_cinov,
+    sum(case when (typ.nazov_typu = 'P') then obo.vyska_skody else 0 end) as vyska_skody_priestupkov,
+    sum(case when (obo.vyska_skody is not null) then obo.vyska_skody else 0 end) as vyska_skody_spolu
+from s_obvod obv join s_pripad pr on(pr.id_obvodu = obv.id_obvodu)
+  join s_typ_pripadu typ on(typ.id_typ_pripadu = pr.id_typ_pripadu)
+  join s_obzalovana_osoba obo on(obo.id_pripadu = pr.id_pripadu)
+group by obv.nazov
+order by vyska_skody_spolu desc;
+
+--podla druhu pripadu
+select typ.druh_pripadu as druh_pripadu, 
+    sum(case when (obo.vyska_skody is not null) then obo.vyska_skody else 0 end) as vyska_skody_spolu
+from s_pripad pr right join s_typ_pripadu typ on(typ.id_typ_pripadu = pr.id_typ_pripadu)
+    join s_obzalovana_osoba obo on(obo.id_pripadu = pr.id_pripadu)
+group by typ.druh_pripadu
+order by vyska_skody_spolu desc;
+
+
+
+--podla vekoveho zaradenia pachatela
+select case when (months_between(sysdate, to_date(substr(obo.rod_cislo,5,2) || '.' || 
+    decode(substr(obo.rod_cislo,3,1),6,1,5,0,substr(obo.rod_cislo,3,1)) || 
+    substr(obo.rod_cislo,4,1) || '.19' || substr(obo.rod_cislo,1,2),'DD.MM.YYYY'))/12 < 14) then 'malolety' 
+    else (case when (months_between(sysdate, to_date(substr(obo.rod_cislo,5,2) || '.' || 
+        decode(substr(obo.rod_cislo,3,1),6,1,5,0,substr(obo.rod_cislo,3,1)) || 
+        substr(obo.rod_cislo,4,1) || '.19' || substr(obo.rod_cislo,1,2),'DD.MM.YYYY'))/12 between 14 and 18) then 'mladistvy'
+        else (case when (months_between(sysdate, to_date(substr(obo.rod_cislo,5,2) || '.' || 
+        decode(substr(obo.rod_cislo,3,1),6,1,5,0,substr(obo.rod_cislo,3,1)) || 
+        substr(obo.rod_cislo,4,1) || '.19' || substr(obo.rod_cislo,1,2),'DD.MM.YYYY'))/12 between 19 and 60) then 'dospely' else 'osoby pokrocileho vek' end) end) end as vek_obvineneho, 
+    sum(case when (typ.nazov_typu = 'C') then obo.vyska_skody else 0 end) as vyska_skody_trest_cinov,
+    sum(case when (typ.nazov_typu = 'P') then obo.vyska_skody else 0 end) as vyska_skody_priestupkov,
+    sum(case when (obo.vyska_skody is not null) then obo.vyska_skody else 0 end) as vyska_skody_spolu
+from s_pripad pr right join s_typ_pripadu typ on(typ.id_typ_pripadu = pr.id_typ_pripadu)
+    join s_obzalovana_osoba obo on(obo.id_pripadu = pr.id_pripadu)
+group by case when (months_between(sysdate, to_date(substr(obo.rod_cislo,5,2) || '.' || 
+    decode(substr(obo.rod_cislo,3,1),6,1,5,0,substr(obo.rod_cislo,3,1)) || 
+    substr(obo.rod_cislo,4,1) || '.19' || substr(obo.rod_cislo,1,2),'DD.MM.YYYY'))/12 < 14) then 'malolety' 
+    else (case when (months_between(sysdate, to_date(substr(obo.rod_cislo,5,2) || '.' || 
+        decode(substr(obo.rod_cislo,3,1),6,1,5,0,substr(obo.rod_cislo,3,1)) || 
+        substr(obo.rod_cislo,4,1) || '.19' || substr(obo.rod_cislo,1,2),'DD.MM.YYYY'))/12 between 14 and 18) then 'mladistvy'
+        else (case when (months_between(sysdate, to_date(substr(obo.rod_cislo,5,2) || '.' || 
+        decode(substr(obo.rod_cislo,3,1),6,1,5,0,substr(obo.rod_cislo,3,1)) || 
+        substr(obo.rod_cislo,4,1) || '.19' || substr(obo.rod_cislo,1,2),'DD.MM.YYYY'))/12 between 19 and 60) then 'dospely' else 'osoby pokrocileho vek' end) end) end
+order by vyska_skody_spolu desc;
+
+--podla pohlavia obvineneho (cize pachatela trestneho cinu)
+select decode(substr(obo.rod_cislo,3,1), 6, 'zena', 5, 'zena', 'muz') as pohlavie_obvineneho, 
+    sum(case when (typ.nazov_typu = 'C') then obo.vyska_skody else 0 end) as vyska_skody_trest_cinov,
+    sum(case when (typ.nazov_typu = 'P') then obo.vyska_skody else 0 end) as vyska_skody_priestupkov,
+    sum(case when (obo.vyska_skody is not null) then obo.vyska_skody else 0 end) as vyska_skody_spolu
+from s_pripad pr right join s_typ_pripadu typ on(typ.id_typ_pripadu = pr.id_typ_pripadu)
+    join s_obzalovana_osoba obo on(obo.id_pripadu = pr.id_pripadu)
+group by decode(substr(obo.rod_cislo,3,1), 6, 'zena', 5, 'zena', 'muz')
+order by vyska_skody_spolu desc;
+
+--6) Miera objasnenosti trestných èinov v jednotlivých regiónoch, za urèité obdobie. 
+--objasnenost v percentach za cele obdobie
+select reg.nazov as region, 
+    round(sum(case when (typ.nazov_typu = 'C' and pr.objasneny = 'A') then 1 else 0 end)/(select count(*) 
+        from s_pripad join s_typ_pripadu using(id_typ_pripadu) where nazov_typu = 'C')*100,2) as objasnenost_trest_cinov,
+    round(sum(case when (typ.nazov_typu = 'P' and pr.objasneny = 'A') then 1 else 0 end)/(select count(*) 
+        from s_pripad join s_typ_pripadu using(id_typ_pripadu) where nazov_typu = 'P')*100,2) as objasnenost_priestupkov,
+    round(sum(case when (pr.objasneny = 'A') then 1 else 0 end)/(select count(*) from s_pripad)*100,2) as objasnenost_spolu
+from s_region reg join s_mesto mes on(reg.id_regionu = mes.id_regionu)
+  join s_pripad pr on(pr.miesto_vykon = mes.psc)
+  join s_typ_pripadu typ on(typ.id_typ_pripadu = pr.id_typ_pripadu)
+group by reg.nazov
+order by objasnenost_spolu desc;
+
+--objasnenost v percentach za urcite obdobie
+create or replace procedure proc_objas_trest_cinov(dat_od date, dat_do date) is
+ cursor cur_objas is 
+  select reg.nazov as region, 
+      round(sum(case when (typ.nazov_typu = 'C' and pr.objasneny = 'A') then 1 else 0 end)/(select count(*) 
+          from s_pripad join s_typ_pripadu using(id_typ_pripadu) where nazov_typu = 'C')*100,2) as objasnenost_trest_cinov,
+      round(sum(case when (typ.nazov_typu = 'P' and pr.objasneny = 'A') then 1 else 0 end)/(select count(*) 
+          from s_pripad join s_typ_pripadu using(id_typ_pripadu) where nazov_typu = 'P')*100,2) as objasnenost_priestupkov,
+      round(sum(case when (pr.objasneny = 'A') then 1 else 0 end)/(select count(*) from s_pripad)*100,2) as objasnenost_spolu
+  from s_region reg join s_mesto mes on(reg.id_regionu = mes.id_regionu)
+    join s_pripad pr on(pr.miesto_vykon = mes.psc)
+    join s_typ_pripadu typ on(typ.id_typ_pripadu = pr.id_typ_pripadu)
+  where pr.dat_zac between dat_od and dat_do
+  group by reg.nazov
+  order by objasnenost_spolu desc;
+ 
+ v_row_cursor cur_objas%rowtype;
+begin
+ open cur_objas;
+  dbms_output.put_line(rpad('REGION', 8) || rpad('OBJASNENOST_TREST_CINOV',25)
+        || rpad('OBJASNENOST_PRIESTUPKOV',25) || rpad('OBJASNENOST_SPOLU',25));
+  loop
+   fetch cur_objas into v_row_cursor;
+    exit when cur_objas%notfound;
+    dbms_output.put_line(rpad(v_row_cursor.region, 8) || rpad(v_row_cursor.objasnenost_trest_cinov,25)
+        || rpad(v_row_cursor.objasnenost_priestupkov,25) || rpad(v_row_cursor.objasnenost_spolu,25));
+    
+  end loop;
+ close cur_objas;
+end;
+/
+
+execute proc_objas_trest_cinov(to_date('01.01.2002'), to_date('01.01.2003'));
+
+--7) Miera objasnenosti najèastejšie sa vyskytujúceho druhu trestných èinov.
+--spravil som prvych 5 najcastejsich podla objasnenosti cez funkciu ROW_NUMBER
+select * from (
+    select druh_pripadu, poc_pripadov, objasnenost, row_number() over (order by objasnenost desc) as rn
+    from(
+        select typ.druh_pripadu as druh_pripadu, count(*) as poc_pripadov, 
+            round(sum(case when (pr.objasneny = 'A') then 1 else 0 end)/(select count(*) from s_pripad)*100,2) as objasnenost
+        from s_pripad pr join s_typ_pripadu typ on(typ.id_typ_pripadu = pr.id_typ_pripadu)
+        group by typ.druh_pripadu)
+    )
+where rn < 6;
