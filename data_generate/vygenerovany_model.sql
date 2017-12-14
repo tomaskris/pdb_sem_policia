@@ -1,4 +1,7 @@
 --DROPNUTIE TABULIEK
+
+desc os_udaje;
+
 /*
 Drop table s_obzalovana_osoba;
 Drop table s_historia_funkcii;

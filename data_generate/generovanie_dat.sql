@@ -438,6 +438,8 @@ begin
 end;
 /
 
+
+
 --vytvorenie sekvencie
 create sequence sekv_id_osoba_pripadu
 increment by 1 start with 1;
@@ -451,6 +453,8 @@ begin
  select sekv_id_osoba_pripadu.nextval into :novy.id_osoby from dual;
 end;
 /
+
+
 
 --vytvorenie sekvencie
 create sequence sekv_id_vypovede
