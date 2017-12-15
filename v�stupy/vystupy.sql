@@ -394,3 +394,74 @@ select * from (
         group by typ.druh_pripadu)
     )
 where rn < 6;
+
+--8) Zoznam osôb u ktorých sa môže bližšie posudzova nárok na amnestiu udelenú prezidentom pri príležitosti 20. výroèia 
+--   založenia nemenovaného štátu (kritéria si vymyslite).
+
+--kriteria: tie osoby, ktore nespachali zavazny trest cin, medzi vybranymi a zaroven
+--                     ktorych dlzka trestu je menej ako 10 rokov a zaroven
+--                     ktore si uz odsedeli 75% z celkovej dlzky trestu
+select odo.rod_cislo, os.meno || ' ' || os.priezvisko as meno, odo.dlzka_trestu, odo.dat_nastupu, 
+    trunc(months_between(sysdate,odo.dat_nastupu)/12) as poc_rok_vo_vazani,
+    decode(tp.nazov_typu,'C','trestny cin','priestupok') as trest_cin, tp.druh_pripadu
+from s_osoba os join s_odsudena_osoba odo on(os.rod_cislo = odo.rod_cislo)
+    join s_pripad pr on(odo.id_pripadu = pr.id_pripadu)
+    join s_typ_pripadu tp on(pr.id_typ_pripadu = tp.id_typ_pripadu)
+where (months_between(sysdate,add_months(odo.dat_nastupu, odo.dlzka_trestu*12)) < 0)
+    and (round(trunc(months_between(sysdate, odo.dat_nastupu)/12)/odo.dlzka_trestu*100,2) >= 75)
+    and (tp.druh_pripadu in ('usmrtenie','ublíženie na zdraví', 'podplácanie'))
+    and (odo.dlzka_trestu < 10);
+    
+--9) Dlhodobá štatistika poètu osôb vo výkone trestu (poèet za rok). 
+create or replace procedure proc_poc_osob_vo_vazani is
+ min_rok number;
+ poc_osob number;
+begin
+ select min(to_char(odo.dat_nastupu,'YYYY')) into min_rok from s_odsudena_osoba odo;
+ dbms_output.put_line(rpad('ROK',5) || rpad('POC_OSOB',10));
+ for rok in min_rok..to_number(to_char(sysdate,'YYYY')) loop
+  select count(*) into poc_osob
+  from s_odsudena_osoba odo
+  where to_char(rok) between to_char(odo.dat_nastupu,'YYYY') and to_char(add_months(odo.dat_nastupu, odo.dlzka_trestu * 12));
+  
+  dbms_output.put_line(rpad(rok,5) || rpad(poc_osob,10));
+ end loop;
+end;
+/
+
+execute proc_poc_osob_vo_vazani;
+
+--10) Roèné náklady na mzdy pracovníkov PZ
+--select za rocne naklady konkretnych PZ za urcity rok na vsetkych zamestnancoch
+create or replace procedure proc_rocne_naklady(rok char) is
+ cursor cur_nakl is
+ select ob.nazov as nzv, round(sum(case when (rok > to_char(hf.dat_od,'YYYY') and rok < to_char(nvl(hf.dat_do,sysdate),'YYYY')) 
+                    then (tf.plat * 12) 
+                else (case when (to_char(hf.dat_od,'YYYY') = rok and (to_char(nvl(hf.dat_do,sysdate),'YYYY') = rok))
+                    then (tf.plat * months_between(nvl(hf.dat_do,sysdate), hf.dat_od))
+                else (case when (to_char(hf.dat_od,'YYYY') = rok)
+                    then (tf.plat * months_between(to_date('31.12.'||rok), hf.dat_od))
+                else (case when (to_char(nvl(hf.dat_do,sysdate),'YYYY') = rok)
+                    then (tf.plat * months_between(nvl(hf.dat_do,sysdate), to_date('01.01.'||rok))) 
+                else 0 end) end) end) end),0) as roc_nakl
+ from s_historia_funkcii hf join s_typ_funkcie tf on(hf.id_funkcie = tf.id_funkcie)
+    join s_zamestnanec za on (za.id_zamestnanca = hf.id_zamestnanca)
+    join s_obvod ob on (za.id_obvodu = ob.id_obvodu)
+ group by ob.nazov
+ order by roc_nakl desc;
+ 
+ v_row_cur cur_nakl%rowtype;
+begin
+ open cur_nakl;
+  dbms_output.put_line(rpad('NAZOV',30) || rpad('ROCNE_NAKLADY', 15));
+  loop
+   fetch cur_nakl into v_row_cur;
+    exit when cur_nakl%notfound;
+    
+    dbms_output.put_line(rpad(v_row_cur.nzv,30) || rpad(v_row_cur.roc_nakl, 15));
+  end loop;
+ close cur_nakl;
+end;
+/
+
+execute proc_rocne_naklady(to_char(2012));
