@@ -262,11 +262,15 @@ is
  rc s_osoba.rod_cislo%type; 
 begin
  select rod_cislo into rc from
- ( select rod_cislo from s_osoba
-  where length(trim(rod_cislo)) = 11 
-   and (decode(substr(rod_cislo, 3,1),6,1,5,0,substr(rod_cislo, 3,1)) || substr(rod_cislo, 4,1) between 1 and 12)
+ ( select os.rod_cislo from s_osoba os
+  where length(trim(os.rod_cislo)) = 11 
+   and (decode(substr(os.rod_cislo, 3,1),6,1,5,0,substr(os.rod_cislo, 3,1)) || substr(os.rod_cislo, 4,1) between 1 and 12)
    --tu mi to neviem z akeho dovodu neslo ani takto (substr(rod_cislo, 5,2) between 1 and 28), tak som to urobil inak
-   and (substr(rod_cislo, 5,1) in (0, 1, 2))
+   and (substr(os.rod_cislo, 5,1) in (0, 1, 2))
+   --pridana podmienka, ze osoba nemoze byt vo vazani
+   and (not exists (select 'x' from s_odsudena_osoba odo
+                    where (os.rod_cislo = odo.rod_cislo) and
+                    (months_between(sysdate,add_months(odo.dat_nastupu, odo.dlzka_trestu*12)) < 0)))
   order by dbms_random.value )
  where rownum = 1;
  return rc;
@@ -352,6 +356,7 @@ begin
      insert into s_zamestnanec(rod_cislo, id_obvodu, dat_od, dat_do) values(rc, id_obv, dat_zac, dat_ukon);
     else
      insert into s_zamestnanec(rod_cislo, id_obvodu, dat_od, dat_do) values(rc, id_obv, dat_zac, null);
+     dat_ukon := null;
     end if;
     --ulozim si id_zamestnanca
     select sekv_id_zamestnanec.currval into cur_id_zamest from dual;
@@ -386,29 +391,55 @@ create or replace procedure proc_insert_historia_funkcii(id_zamest integer, dat_
  rand_funkcia integer;
 begin
    --vygenerujem si kolkokrat zmenil svoju funkciu
-   poc_zmen_funkcii := round(dbms_random.value(0,3));
-   --ak zmenil funkciu
-   if (poc_zmen_funkcii > 0) then
-    dat_zac_funkcie := dat_zac;
-    dat_ukon_funkcie := dat_zac;
+   poc_zmen_funkcii := round(dbms_random.value(1,3));
+   dat_zac_funkcie := dat_zac;
+   dat_ukon_funkcie := dat_zac;
+   --ak zmenil funkciu viac ako raz
+   if (poc_zmen_funkcii > 1) then
+    if(dat_ukon is not null) then
     for k in 1..poc_zmen_funkcii loop
      --vygenerujem si nahodny datum zaciatku prace v danej funkcii
-     dat_zac_funkcie := get_nahodny_datum(dat_ukon_funkcie, dat_ukon);
+     --dat_zac_funkcie := get_nahodny_datum(dat_ukon_funkcie, dat_ukon);
+     dat_zac_funkcie := dat_ukon_funkcie;
      if(is_unique_date_historia(dat_zac_funkcie) = 0) then
       --ak to je uz posledna zmena funkcie
-      if(k = poc_zmen_funkcii) then
-       dat_ukon_funkcie := dat_ukon;
-      else 
+      --if(k = poc_zmen_funkcii) then
+      -- dat_ukon_funkcie := dat_ukon;
+      --else 
        --vygenerujem si nahodny datum ukoncenia funkcie
-       dat_ukon_funkcie := get_nahodny_datum(dat_zac_funkcie, dat_ukon);
-      end if; 
+       dat_ukon_funkcie := get_nahodny_datum(dat_zac_funkcie + 1, dat_ukon);
+     -- end if; 
       --vygenerujem nahodne id_funkcie
       rand_funkcia := round(dbms_random.value(1, poc_funkcii));
       --insertnem do historie
       insert into s_historia_funkcii values(id_zamest, dat_zac_funkcie, rand_funkcia, dat_ukon_funkcie);
      end if;
     end loop;
+    else 
+    for k in 1..poc_zmen_funkcii loop
+     --vygenerujem si nahodny datum zaciatku prace v danej funkcii
+     --dat_zac_funkcie := get_nahodny_datum(dat_ukon_funkcie, sysdate);
+     dat_zac_funkcie := dat_ukon_funkcie;
+     if(is_unique_date_historia(dat_zac_funkcie) = 0) then
+      --ak to je uz posledna zmena funkcie
+      --if(k = poc_zmen_funkcii) then
+       --dat_ukon_funkcie := dat_ukon;
+      --else 
+       --vygenerujem si nahodny datum ukoncenia funkcie
+       dat_ukon_funkcie := get_nahodny_datum(dat_zac_funkcie + 1, sysdate);
+      --end if; 
+      --vygenerujem nahodne id_funkcie
+      rand_funkcia := round(dbms_random.value(1, poc_funkcii));
+      --insertnem do historie
+      insert into s_historia_funkcii values(id_zamest, dat_zac_funkcie, rand_funkcia, dat_ukon_funkcie);
+     end if;
+    end loop;
+    end if;
    end if;
+   
+   --posledna zmena funkcie
+   rand_funkcia := round(dbms_random.value(1, poc_funkcii));
+   insert into s_historia_funkcii values(id_zamest, dat_ukon_funkcie, rand_funkcia, dat_ukon);
 end;
 /
 
@@ -438,8 +469,6 @@ begin
 end;
 /
 
-
-
 --vytvorenie sekvencie
 create sequence sekv_id_osoba_pripadu
 increment by 1 start with 1;
@@ -453,8 +482,6 @@ begin
  select sekv_id_osoba_pripadu.nextval into :novy.id_osoby from dual;
 end;
 /
-
-
 
 --vytvorenie sekvencie
 create sequence sekv_id_vypovede

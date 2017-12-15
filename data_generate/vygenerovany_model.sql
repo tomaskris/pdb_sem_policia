@@ -1,7 +1,4 @@
 --DROPNUTIE TABULIEK
-
-desc os_udaje;
-
 /*
 Drop table s_obzalovana_osoba;
 Drop table s_historia_funkcii;
@@ -145,7 +142,7 @@ Create table s_historia_funkcii (
 	id_zamestnanca Integer NOT NULL ,
 	dat_od Date NOT NULL ,
 	id_funkcie Integer NOT NULL ,
-	dat_do Date NOT NULL ,
+	dat_do Date ,
 primary key (id_zamestnanca,dat_od) 
 ) 
 /
