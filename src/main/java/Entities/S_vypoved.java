@@ -9,6 +9,13 @@ public class S_vypoved extends MyDataClass {
     private String typ_vypovede;
     private Blob zaznam;
 
+    public S_vypoved() {
+        this.id_vypovede = BigDecimal.ZERO;
+        this.id_osoby = BigDecimal.ZERO;
+        this.typ_vypovede = "";
+        this.zaznam = (Blob) new Object();
+    }
+
     public BigDecimal getId_vypovede() {
         return id_vypovede;
     }

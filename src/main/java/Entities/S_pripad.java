@@ -13,6 +13,17 @@ public class S_pripad extends MyDataClass {
     private Date dat_zac;
     private Date dat_ukon;
 
+    public S_pripad() {
+        this.id_pripadu = BigDecimal.ZERO;
+        this.id_typ_pripadu = BigDecimal.ZERO;
+        this.id_obvodu = BigDecimal.ZERO;
+        this.miesto_vykon = "";
+        this.dat_vykon = new Date();
+        this.objasneny = "";
+        this.dat_zac = new Date();
+        this.dat_ukon = new Date();
+    }
+
     public BigDecimal getId_pripadu() {
         return id_pripadu;
     }

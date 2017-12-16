@@ -8,6 +8,13 @@ public class S_mesto extends MyDataClass {
   private BigDecimal id_obvodu;
   private String nazov;
 
+  public S_mesto() {
+    this.psc = "";
+    this.id_regionu = BigDecimal.ZERO;
+    this.id_obvodu = BigDecimal.ZERO;
+    this.nazov = "";
+  }
+
   public BigDecimal getId_regionu() {
     return id_regionu;
   }

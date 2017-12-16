@@ -15,9 +15,9 @@ Drop table s_pripad;
 Drop table s_biom_udaje;
 Drop table s_vaznica;
 Drop table s_typ_pripadu;
-Drop table s_obvod;
-Drop table s_mesto;
-Drop table s_region;
+Drop table s_obvod cascade constraints;
+Drop table s_mesto cascade constraints;
+Drop table s_region cascade constraints;
 
 
 --drop vsetky seqvencie

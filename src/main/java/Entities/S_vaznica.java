@@ -7,6 +7,12 @@ public class S_vaznica extends MyDataClass {
     private String psc;
     private String nazov;
 
+    public S_vaznica() {
+        this.id_vaznice = BigDecimal.ZERO;
+        this.psc = "";
+        this.nazov = "";
+    }
+
     public BigDecimal getId_vaznice() {
         return id_vaznice;
     }

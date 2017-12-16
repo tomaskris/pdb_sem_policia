@@ -9,6 +9,14 @@ public class S_obzalovana_osoba extends MyDataClass {
   private BigDecimal vyska_skody;
   private BigDecimal udelena_pokuta;
 
+  public S_obzalovana_osoba() {
+    this.id_obzalovanej = BigDecimal.ZERO;
+    this.id_pripadu = BigDecimal.ZERO;
+    this.rod_cislo = "";
+    this.vyska_skody = BigDecimal.ZERO;
+    this.udelena_pokuta = BigDecimal.ZERO;
+  }
+
   public BigDecimal getId_pripadu() {
     return id_pripadu;
   }

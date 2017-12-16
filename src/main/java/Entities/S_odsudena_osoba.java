@@ -11,6 +11,15 @@ public class S_odsudena_osoba extends MyDataClass {
   private BigDecimal dlzka_trestu;
   private Date dat_nastupu;
 
+  public S_odsudena_osoba() {
+    this.id_odsudeneho = BigDecimal.ZERO;
+    this.rod_cislo = "";
+    this.id_pripadu = BigDecimal.ZERO;
+    this.id_vaznice = BigDecimal.ZERO;
+    this.dlzka_trestu = BigDecimal.ZERO;
+    this.dat_nastupu = new Date();
+  }
+
   public BigDecimal getId_odsudeneho() {
     return id_odsudeneho;
   }

@@ -44,4 +44,12 @@ public class MyTableModel<T extends MyDataClass> extends AbstractTableModel {
         else
             return "UNKNOWN";
     }
+
+    public T getRow(int rowIndex){
+        if(objects.size() > rowIndex){
+            T mesto = objects.get(rowIndex);
+            return mesto;
+        }
+        return null;
+    }
 }

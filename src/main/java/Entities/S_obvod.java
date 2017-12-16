@@ -7,6 +7,12 @@ public class S_obvod extends MyDataClass {
   private String psc;
   private String nazov;
 
+  public S_obvod() {
+    this.id_obvodu = BigDecimal.ZERO;
+    this.psc = "";
+    this.nazov = "";
+  }
+
   public BigDecimal getId_obvodu() {
     return id_obvodu;
   }

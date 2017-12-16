@@ -7,6 +7,12 @@ public class S_typ_pripadu extends MyDataClass {
     private String nazov_typu;
     private String druh_pripadu;
 
+    public S_typ_pripadu() {
+        this.id_typ_pripadu = BigDecimal.ZERO;
+        this.nazov_typu = "";
+        this.druh_pripadu = "";
+    }
+
     public BigDecimal getId_typ_pripadu() {
         return id_typ_pripadu;
     }

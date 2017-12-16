@@ -769,7 +769,7 @@ create or replace procedure proc_insert_pripady is
  size_tab_typ_pripad integer;
  cur_id_pripad integer;
 begin
- for prip in 1..1000 loop
+ for prip in 1..500 loop
  --PRE JEDEN PRIPAD V DANY DATUM 
  --pocet riadov tabulky s_obvod
  select count(*) into size_tab_obvod from s_obvod;

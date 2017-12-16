@@ -42,6 +42,7 @@ public class DatabaseSelecter<T> extends AbstractDatabaseHandler<T> {
 		/* We assume the table-name exactly matches the simpleName of T */
         sb.append(type.getSimpleName());
 
+        sb.append(" ORDER BY "+ type.getDeclaredFields()[0].getName() +" ASC");
         return sb.toString();
     }
 

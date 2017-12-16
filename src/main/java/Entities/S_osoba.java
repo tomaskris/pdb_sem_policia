@@ -9,6 +9,14 @@ public class S_osoba extends MyDataClass {
     private String meno;
     private String priezvisko;
 
+    public S_osoba() {
+        this.rod_cislo = "";
+        this.id_biom_udaju = BigDecimal.ZERO;
+        this.psc = "";
+        this.meno = "";
+        this.priezvisko = "";
+    }
+
     public BigDecimal getId_biom_udaju() {
         return id_biom_udaju;
     }

@@ -2,9 +2,9 @@ package main.java;
 
 import oracle.jdbc.pool.OracleDataSource;
 
-import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.sql.Connection;
 
 public class Connector {
 
@@ -14,21 +14,19 @@ public class Connector {
             String url = "jdbc:oracle:thin:@asterix.fri.uniza.sk:1521/orclpdb.fri.uniza.sk";
             String username = "xxx";
             String password = "xxx";
-
             Class.forName("oracle.jdbc.OracleDriver");
-            //throw new Error("Treba tu odkomentovat riadok a vyplnit prihlasovacie udaje");
 
             Connection connection = DriverManager.getConnection( url, username, password);
-            System.out.println("You madee it, take control your database now!");
+            System.out.println("Connected");
             return connection;
 
         } catch (SQLException e) {
-            System.out.println("Connection Failed! Check output console");
+            System.out.println("Connection Failed!");
             e.printStackTrace();
             return null;
 
         } catch (ClassNotFoundException e) {
-            System.out.println("Where is your Oracle JDBC Driver?");
+            System.out.println("Oracle JDBC Driver missing!");
             e.printStackTrace();
             return null;
         }
