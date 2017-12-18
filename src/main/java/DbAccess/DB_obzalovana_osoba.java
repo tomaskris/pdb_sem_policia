@@ -2,6 +2,7 @@ package main.java.DbAccess;
 
 import main.java.Connector;
 import main.java.Entities.MyDataClass;
+import main.java.Entities.S_obzalovana_osoba;
 import main.java.Entities.S_region;
 import main.java.helper.DatabaseSelecter;
 
@@ -18,7 +19,7 @@ public class DB_obzalovana_osoba implements DBAccess {
     @Override
     public List<MyDataClass> selectAll() {
         try {
-            DatabaseSelecter selector = new DatabaseSelecter(S_region.class);
+            DatabaseSelecter selector = new DatabaseSelecter(S_obzalovana_osoba.class);
             try {
                 return selector.selectObjects();
             } catch (SQLException | InstantiationException | IntrospectionException | IllegalAccessException | InvocationTargetException e) {
@@ -33,10 +34,13 @@ public class DB_obzalovana_osoba implements DBAccess {
 
     @Override
     public void insert(MyDataClass object) {
-        S_region obj = (S_region) object;
+        S_obzalovana_osoba obj = (S_obzalovana_osoba) object;
         try (Connection connection = Connector.getConnection()) {
-            CallableStatement stmnt = connection.prepareCall("INSERT INTO S_REGION VALUES (1, ?)");
-            stmnt.setString(1, obj.getNazov());
+            CallableStatement stmnt = connection.prepareCall("BEGIN proc_vytvor_obzalovana(?, ?, ?, ?); END;");
+            stmnt.setBigDecimal(1, obj.getId_pripadu());
+            stmnt.setString(2, obj.getRod_cislo());
+            stmnt.setBigDecimal(3, obj.getVyska_skody());
+            stmnt.setBigDecimal(4, obj.getUdelena_pokuta());
             stmnt.execute();
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -45,11 +49,15 @@ public class DB_obzalovana_osoba implements DBAccess {
 
     @Override
     public void update(MyDataClass object, MyDataClass newObject) {
-        S_region obj = (S_region) newObject;
+        S_obzalovana_osoba obj = (S_obzalovana_osoba) object;
         try (Connection connection = Connector.getConnection()) {
-            CallableStatement stmnt = connection.prepareCall("UPDATE S_REGION SET NAZOV = ? WHERE ID_REGIONU = ?");
-            stmnt.setString(1, obj.getNazov());
-            stmnt.setBigDecimal(2, obj.getId_regionu());
+            CallableStatement stmnt = connection.prepareCall("BEGIN proc_update_obzalovana(?, ?, ?, ?, ?); END;");
+            stmnt.setBigDecimal(1, obj.getId_pripadu());
+            stmnt.setString(2, obj.getRod_cislo());
+            stmnt.setBigDecimal(3, obj.getVyska_skody());
+            stmnt.setBigDecimal(4, obj.getUdelena_pokuta());
+            stmnt.setBigDecimal(5, obj.getId_obzalovanej());
+
             stmnt.execute();
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -58,10 +66,10 @@ public class DB_obzalovana_osoba implements DBAccess {
 
     @Override
     public void delete(MyDataClass object) {
-        S_region obj = (S_region) object;
+        S_obzalovana_osoba obj = (S_obzalovana_osoba) object;
         try (Connection connection = Connector.getConnection()) {
-            CallableStatement stmnt = connection.prepareCall("DELETE FROM S_REGION WHERE ID_REGIONU = ?");
-            stmnt.setBigDecimal(1,obj.getId_regionu());
+            CallableStatement stmnt = connection.prepareCall("BEGIN proc_vymaz_obzalovana(?); END;");
+            stmnt.setBigDecimal(1, obj.getId_obzalovanej());
             stmnt.execute();
         } catch (SQLException e) {
             throw new RuntimeException(e);

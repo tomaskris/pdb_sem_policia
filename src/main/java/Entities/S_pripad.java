@@ -131,7 +131,6 @@ public class S_pripad extends MyDataClass {
                 return "dat_zac";
             case 7:
                 return "dat_ukon";
-            case 8:
             default:
                 return null;
         }

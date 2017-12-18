@@ -4,6 +4,7 @@ import main.java.DbAccess.AccessList;
 import main.java.DbAccess.BackgroundDB;
 import main.java.DbAccess.DBAccess;
 import main.java.Entities.MyDataClass;
+import main.java.Entities.S_osoba_pripadu;
 import main.java.WidgetConfig;
 import main.java.gui.TableModels.MyTableModel;
 import main.java.helper.DatabaseSelecter;
@@ -28,6 +29,7 @@ public class TablePanel extends JDialog {
     private JButton loadDataButton;
     private JPanel insertPanel;
     private JButton updateButton;
+    private JButton vypovedeBtn;
     private JButton buttonOK;
 
     private Class dataClass;
@@ -46,6 +48,18 @@ public class TablePanel extends JDialog {
         my_table.getTableHeader().setReorderingAllowed(false);
 
         initListeners();
+
+        if(this.dataClass.getSimpleName().equals("S_osoba_pripadu")){
+            vypovedeBtn.addActionListener((event) -> {
+                S_osoba_pripadu osoba = metaWidget.getToInspect();
+                Vypoved dialog = new Vypoved(osoba.getId_osoby());
+                dialog.pack();
+                dialog.setVisible(true);
+
+            });
+        }else{
+            vypovedeBtn.setVisible(false);
+        }
 
     }
 

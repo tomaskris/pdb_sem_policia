@@ -18,8 +18,9 @@ public class Tables extends JDialog {
         getRootPane().setDefaultButton(buttonOK);
         tables = new ArrayList<>();
 
-        tables.add(S_biom_udaje.class);
         /*
+        tables.add(S_biom_udaje.class);
+
         tables.add(S_historia_funkcii.class);
         tables.add(S_hladana_osoba.class);
         tables.add(S_mesto.class);
@@ -27,12 +28,14 @@ public class Tables extends JDialog {
         tables.add(S_obzalovana_osoba.class);
         tables.add(S_odsudena_osoba.class);
         tables.add(S_osoba.class);
-        tables.add(S_osoba_pripadu.class);
-        tables.add(S_pripad.class);
 */
+        tables.add(S_pripad.class);
+
+/*
+        tables.add(S_osoba_pripadu.class);
         tables.add(S_region.class);
         tables.add(S_typ_funkcie.class);
-        /*
+
         tables.add(S_typ_pripadu.class);
         tables.add(S_vaznica.class);
         tables.add(S_zamestnanec.class);

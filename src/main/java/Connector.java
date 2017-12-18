@@ -12,8 +12,8 @@ public class Connector {
         try {
 //            String url = "jdbc:oracle:thin:@localhost:1521:xe";
             String url = "jdbc:oracle:thin:@asterix.fri.uniza.sk:1521/orclpdb.fri.uniza.sk";
-            String username = "xxx";
-            String password = "xxx";
+            String username = "chudjak2";
+            String password = "ceasdaa";
             Class.forName("oracle.jdbc.OracleDriver");
 
             Connection connection = DriverManager.getConnection( url, username, password);

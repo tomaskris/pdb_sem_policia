@@ -36,7 +36,7 @@ public class DB_typ_funkcie implements DBAccess {
     public void insert(MyDataClass object) {
         S_typ_funkcie obj = (S_typ_funkcie) object;
         try (Connection connection = Connector.getConnection()) {
-            CallableStatement stmnt = connection.prepareCall("INSERT INTO S_TYP_FUNKCIE VALUES (1, ?, ?)");
+            CallableStatement stmnt = connection.prepareCall("BEGIN proc_vytvor_typ_funkcie(?, ?); END;");
             stmnt.setString(1, obj.getNazov());
             stmnt.setBigDecimal(2, obj.getPlat());
             stmnt.execute();
@@ -49,10 +49,7 @@ public class DB_typ_funkcie implements DBAccess {
     public void update(MyDataClass object, MyDataClass newObject) {
         S_typ_funkcie obj = (S_typ_funkcie) object;
         try (Connection connection = Connector.getConnection()) {
-            CallableStatement stmnt = connection.prepareCall("UPDATE S_TYP_FUNKCIE SET " +
-                    "NAZOV = ?, " +
-                    "PLAT = ?" +
-                    " WHERE ID_FUNKCIE = ?");
+            CallableStatement stmnt = connection.prepareCall("BEGIN proc_update_typ_funkcie(?, ?, ?); END;");
             stmnt.setString(1, obj.getNazov());
             stmnt.setBigDecimal(2, obj.getPlat());
             stmnt.setBigDecimal(3, obj.getId_funkcie());
@@ -66,8 +63,8 @@ public class DB_typ_funkcie implements DBAccess {
     public void delete(MyDataClass object) {
         S_typ_funkcie obj = (S_typ_funkcie) object;
         try (Connection connection = Connector.getConnection()) {
-            CallableStatement stmnt = connection.prepareCall("DELETE FROM S_TYP_FUNKCIE WHERE ID_FUNKCIE = ?");
-            stmnt.setBigDecimal(1,obj.getId_funkcie());
+            CallableStatement stmnt = connection.prepareCall("BEGIN proc_vymaz_typ_funkcie(?); END;");
+            stmnt.setBigDecimal(1, obj.getId_funkcie());
             stmnt.execute();
         } catch (SQLException e) {
             throw new RuntimeException(e);
