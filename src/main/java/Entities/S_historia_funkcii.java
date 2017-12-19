@@ -9,6 +9,14 @@ public class S_historia_funkcii extends MyDataClass {
   private BigDecimal id_funkcie;
   private Date dat_do;
 
+  public S_historia_funkcii() {
+    this.id_zamestnanca = BigDecimal.ZERO;
+    this.dat_od = new Date();
+    this.id_funkcie = BigDecimal.ZERO;
+    this.dat_do = new Date();
+
+  }
+
   public BigDecimal getId_zamestnanca() {
     return id_zamestnanca;
   }

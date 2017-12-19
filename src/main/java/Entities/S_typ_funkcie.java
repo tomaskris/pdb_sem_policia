@@ -1,5 +1,7 @@
 package main.java.Entities;
 
+import org.metawidget.inspector.annotation.UiHidden;
+
 import java.math.BigDecimal;
 
 public class S_typ_funkcie extends MyDataClass {
@@ -7,6 +9,13 @@ public class S_typ_funkcie extends MyDataClass {
     private String nazov;
     private BigDecimal plat;
 
+    public S_typ_funkcie() {
+        this.id_funkcie = BigDecimal.ZERO;
+        this.nazov = "";
+        this.plat = BigDecimal.ZERO;
+    }
+
+    @UiHidden
     public BigDecimal getId_funkcie() {
         return id_funkcie;
     }

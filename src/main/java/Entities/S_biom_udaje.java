@@ -1,5 +1,7 @@
 package main.java.Entities;
 
+import org.metawidget.inspector.annotation.UiHidden;
+
 import java.math.BigDecimal;
 
 public class S_biom_udaje extends MyDataClass {
@@ -9,6 +11,15 @@ public class S_biom_udaje extends MyDataClass {
   private String farba_vlasov;
   private String farba_oci;
 
+  public S_biom_udaje() {
+    this.id_biom_udaju = BigDecimal.ONE;
+    this.vyska = BigDecimal.ONE;
+    this.typ_postavy = "";
+    this.farba_vlasov = "";
+    this.farba_oci = "";
+  }
+
+  @UiHidden
   public BigDecimal getId_biom_udaju() {
     return id_biom_udaju;
   }

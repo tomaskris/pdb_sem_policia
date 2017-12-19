@@ -11,6 +11,15 @@ public class S_hladana_osoba extends MyDataClass {
   private Date dat_od;
   private Date dat_do;
 
+  public S_hladana_osoba() {
+    this.id_hladanej = BigDecimal.ZERO;
+    this.id_pripadu = BigDecimal.ZERO;
+    this.rod_cislo = "";
+    this.dovod = "";
+    this.dat_od = new Date();
+    this.dat_do = new Date();
+  }
+
   public BigDecimal getId_hladanej() {
     return id_hladanej;
   }

@@ -1,5 +1,50 @@
 --INSERTY
 
+
+insert into s_typ_funkcie values(1, 'Komisar Rex',20);
+/
+
+desc s_osoba_pripadu;
+
+select * from s_osoba_pripadu ;
+
+select * from table(select vypoved from s_osoba_pripadu where id_osoby = 952);
+/
+
+desc T_REC_VYPOVED;
+
+
+
+
+
+
+create sequence sekv_typ_funkcie
+increment by 1 start with 6;
+--drop sequence sekv_id_obvod;
+--trigger pre inkrementovanie ID pre tabulku s_region
+create or replace trigger trig_typ_funkcie_inc_id
+ before insert on s_typ_funkcie
+ referencing new as novy
+ for each row
+begin
+ select sekv_typ_funkcie.nextval into :novy.id_funkcie from dual;
+end;
+/
+
+--vytvorenie sekvencie
+create sequence sekv_region
+increment by 1 start with 3;
+--drop sequence sekv_id_obvod;
+--trigger pre inkrementovanie ID pre tabulku s_region
+create or replace trigger trig_region_inc_id
+ before insert on s_region
+ referencing new as novy
+ for each row
+begin
+ select sekv_region.nextval into :novy.id_regionu from dual;
+end;
+/
+
 --insert regionov (u nas budu regiony iba zo Slovenska a to aj tak iba zopar)
 insert into s_region values(1, 'Orava');
 insert into s_region values(2, 'Liptov');

@@ -10,6 +10,14 @@ public class S_zamestnanec extends MyDataClass {
     private Date dat_od;
     private Date dat_do;
 
+    public S_zamestnanec() {
+        this.id_zamestnanca = BigDecimal.ZERO;
+        this.rod_cislo = "";
+        this.id_obvodu = BigDecimal.ZERO;
+        this.dat_od = new Date();
+        this.dat_do = new Date();
+    }
+
     public BigDecimal getId_zamestnanca() {
         return id_zamestnanca;
     }

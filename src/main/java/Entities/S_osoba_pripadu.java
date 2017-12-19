@@ -1,13 +1,30 @@
 package main.java.Entities;
 
+
+
+import main.java.Connector;
+import org.metawidget.inspector.annotation.UiHidden;
+
 import java.math.BigDecimal;
+import java.sql.Array;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 
 public class S_osoba_pripadu extends MyDataClass {
     private BigDecimal id_osoby;
     private BigDecimal id_pripadu;
     private String rod_cislo;
     private String typ_osoby;
-    private Object vypoved;
+    private Array vypoved;
+
+    public S_osoba_pripadu() {
+        this.id_osoby = BigDecimal.ZERO;
+        this.id_pripadu = BigDecimal.ZERO;
+        this.rod_cislo = "";
+        this.typ_osoby = "";
+        this.vypoved = null;
+    }
 
     public BigDecimal getId_osoby() {
         return id_osoby;
@@ -41,11 +58,12 @@ public class S_osoba_pripadu extends MyDataClass {
         this.typ_osoby = typ_osoby;
     }
 
-    public Object getVypoved() {
+    @UiHidden
+    public Array getVypoved() {
         return vypoved;
     }
 
-    public void setVypoved(Object vypoved) {
+    public void setVypoved(Array vypoved) {
         this.vypoved = vypoved;
     }
 

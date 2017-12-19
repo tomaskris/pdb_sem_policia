@@ -1,11 +1,19 @@
 package main.java.Entities;
 
+import org.metawidget.inspector.annotation.UiHidden;
+
 import java.math.BigDecimal;
 
 public class S_region extends MyDataClass {
     private BigDecimal id_regionu;
     private String nazov;
 
+    public S_region() {
+        this.id_regionu = BigDecimal.ZERO;
+        this.nazov = "";
+    }
+
+    @UiHidden
     public BigDecimal getId_regionu() {
         return id_regionu;
     }
