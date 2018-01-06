@@ -3,7 +3,7 @@ set long 2000
 set linesize 1000;
 set pagesize 0;
 
--- 1) Podrobný preh¾ad o vyšetrovaných prípadoch.
+-- 1) Podrobnï¿½ prehï¿½ad o vyï¿½etrovanï¿½ch prï¿½padoch.
 create or replace procedure proc_prehlad_pripadov is 
   cursor cur_pripad is 
     select pr.id_pripadu as id_p, decode(tp.nazov_typu,'C','trestny cin', 'priestupok') || ', ' || tp.druh_pripadu as tp,
@@ -117,14 +117,14 @@ end;
 
 execute proc_prehlad_pripadov;
 
--- 2) Zoznam trestných èinov a priestupkov za urèité obdobie rozdelený pod¾a druhu trestného èinu.
+-- 2) Zoznam trestnï¿½ch ï¿½inov a priestupkov za urï¿½itï¿½ obdobie rozdelenï¿½ podï¿½a druhu trestnï¿½ho ï¿½inu.
 create or replace procedure proc_trest_ciny_za_obd(od date, do date) is
  cursor cur_ciny is
   select tp.id_typ_pripadu as id_typ, decode(tp.nazov_typu, 'C','trestny cin','priestupok') as n_typ, tp.druh_pripadu as d_typ
   from s_typ_pripadu tp;
   
  cursor cur_prip(druh s_typ_pripadu.druh_pripadu%type) is
-  select me.nazov as mesto, decode(pr.dat_vykon, NULL, 'neznamy', to_char(pr.dat_vykon,'DD.MM.YYYY')) as dvy, pr.dat_zac as zv,
+  select me.nazov as obvod, decode(pr.dat_vykon, NULL, 'neznamy', to_char(pr.dat_vykon,'DD.MM.YYYY')) as dvy, pr.dat_zac as zv,
    decode(pr.dat_ukon, NULL, 'neznamy', to_char(pr.dat_ukon,'DD.MM.YYYY')) as kv, decode(pr.objasneny, 'A', 'objasneny','neobjasneny') as p_obs
   from s_pripad pr join s_typ_pripadu tp on(pr.id_typ_pripadu = tp.id_typ_pripadu)
    join s_mesto me on(pr.miesto_vykon = me.psc)
@@ -149,7 +149,7 @@ begin
       dbms_output.put_line('.   ' || rpad('Pc.',4) || rpad('Miesto vykon',20) || rpad('Dat vykon',12) || rpad('Objasnenost',13)
                            || rpad('Zac vyset', 12) || rpad('Kon vyset', 12));
      end if; 
-     dbms_output.put_line('.   ' || rpad(akt_prip,4) || rpad(v_pripad.mesto,20) || rpad(v_pripad.dvy,12) || rpad(v_pripad.p_obs,13)
+     dbms_output.put_line('.   ' || rpad(akt_prip,4) || rpad(v_pripad.obvod,20) || rpad(v_pripad.dvy,12) || rpad(v_pripad.p_obs,13)
                           || rpad(v_pripad.zv, 12) || rpad(v_pripad.kv, 12));
      akt_prip := akt_prip + 1;
     end loop;
@@ -161,19 +161,19 @@ end;
 
 execute proc_trest_ciny_za_obd(to_date('01.01.2002'), to_date('01.01.2003'));
 
--- 3) Štatistika trestných èinov pod¾a regiónov, miest, obvodov. 
+-- 3) ï¿½tatistika trestnï¿½ch ï¿½inov podï¿½a regiï¿½nov, miest, obvodov.
 --podla regionov
-select reg.nazov as region, 
-    sum(case when (typ.nazov_typu = 'C') then 1 else 0 end) as poc_trest_cinov,
-    sum(case when (typ.nazov_typu = 'P') then 1 else 0 end) as poc_priestupkov,
-    count(*) as spolu
+select reg.nazov as region,
+       sum(case when (typ.nazov_typu = 'C') then 1 else 0 end) as poc_trest_cinov,
+       sum(case when (typ.nazov_typu = 'P') then 1 else 0 end) as poc_priestupkov,
+       count(*) as spolu
 from s_region reg join s_mesto mes on(reg.id_regionu = mes.id_regionu)
   join s_pripad pr on(pr.miesto_vykon = mes.psc)
   join s_typ_pripadu typ on(typ.id_typ_pripadu = pr.id_typ_pripadu)
 group by reg.nazov;
 
 --podla miest
-select mes.nazov as mesto, 
+select mes.nazov as obvod,
     sum(case when (typ.nazov_typu = 'C') then 1 else 0 end) as poc_trest_cinov,
     sum(case when (typ.nazov_typu = 'P') then 1 else 0 end) as poc_priestupkov,
     count(*) as spolu
@@ -216,7 +216,7 @@ group by reg.nazov);
 select XMLRoot(XMLElement("mesta", nr), version '1.0') as xml
 from
   (select XMLAgg(
-    XMLElement("mesto",
+    XMLElement("obvod",
     XMLAttributes(mes.nazov as "nazov"),
     XMLForest(
       sum(case when (typ.nazov_typu = 'C') then 1 else 0 end) as "poc_trest_cinov", 
@@ -248,13 +248,13 @@ from s_obvod obv join s_pripad pr on(pr.id_obvodu = obv.id_obvodu)
 group by obv.nazov
 order by obv.nazov);
 
--- 4) Štatistika (poèty) trestných èinov rôznych druhov, zoradená od najèastejšie sa vyskytujúceho druhu po najzriedkavejšie.
+-- 4) ï¿½tatistika (poï¿½ty) trestnï¿½ch ï¿½inov rï¿½znych druhov, zoradenï¿½ od najï¿½astejï¿½ie sa vyskytujï¿½ceho druhu po najzriedkavejï¿½ie.
 select typ.druh_pripadu as obvod, count(*) as poc_pripadov
 from s_pripad pr right join s_typ_pripadu typ on(typ.id_typ_pripadu = pr.id_typ_pripadu)
 group by typ.druh_pripadu
 order by poc_pripadov desc;
 
--- 5) Štatistické  vyhodnotenie spôsobenej škody pod¾a rôznych kritérií.
+-- 5) ï¿½tatistickï¿½  vyhodnotenie spï¿½sobenej ï¿½kody podï¿½a rï¿½znych kritï¿½riï¿½.
 --podla regionov
 select reg.nazov as region, 
     sum(case when (typ.nazov_typu = 'C') then obo.vyska_skody else 0 end) as vyska_skody_trest_cinov,
@@ -268,7 +268,7 @@ group by reg.nazov
 order by vyska_skody_spolu desc;
 
 --podla miest
-select mes.nazov as mesto, 
+select mes.nazov as obvod,
     sum(case when (typ.nazov_typu = 'C') then obo.vyska_skody else 0 end) as vyska_skody_trest_cinov,
     sum(case when (typ.nazov_typu = 'P') then obo.vyska_skody else 0 end) as vyska_skody_priestupkov,
     sum(case when (obo.vyska_skody is not null) then obo.vyska_skody else 0 end) as vyska_skody_spolu
@@ -335,7 +335,7 @@ from s_pripad pr right join s_typ_pripadu typ on(typ.id_typ_pripadu = pr.id_typ_
 group by decode(substr(obo.rod_cislo,3,1), 6, 'zena', 5, 'zena', 'muz')
 order by vyska_skody_spolu desc;
 
---6) Miera objasnenosti trestných èinov v jednotlivých regiónoch, za urèité obdobie. 
+--6) Miera objasnenosti trestnï¿½ch ï¿½inov v jednotlivï¿½ch regiï¿½noch, za urï¿½itï¿½ obdobie. 
 --objasnenost v percentach za cele obdobie
 select reg.nazov as region, 
     round(sum(case when (typ.nazov_typu = 'C' and pr.objasneny = 'A') then 1 else 0 end)/(select count(*) 
@@ -383,7 +383,7 @@ end;
 
 execute proc_objas_trest_cinov(to_date('01.01.2002'), to_date('01.01.2003'));
 
---7) Miera objasnenosti najèastejšie sa vyskytujúceho druhu trestných èinov.
+--7) Miera objasnenosti najï¿½astejï¿½ie sa vyskytujï¿½ceho druhu trestnï¿½ch ï¿½inov.
 --spravil som prvych 5 najcastejsich podla objasnenosti cez funkciu ROW_NUMBER
 select * from (
     select druh_pripadu, poc_pripadov, objasnenost, row_number() over (order by objasnenost desc) as rn
@@ -395,8 +395,8 @@ select * from (
     )
 where rn < 6;
 
---8) Zoznam osôb u ktorých sa môže bližšie posudzova nárok na amnestiu udelenú prezidentom pri príležitosti 20. výroèia 
---   založenia nemenovaného štátu (kritéria si vymyslite).
+--8) Zoznam osï¿½b u ktorï¿½ch sa mï¿½ï¿½e bliï¿½ï¿½ie posudzovaï¿½ nï¿½rok na amnestiu udelenï¿½ prezidentom pri prï¿½leï¿½itosti 20. vï¿½roï¿½ia 
+--   zaloï¿½enia nemenovanï¿½ho ï¿½tï¿½tu (kritï¿½ria si vymyslite).
 
 --kriteria: tie osoby, ktore nespachali zavazny trest cin, medzi vybranymi a zaroven
 --                     ktorych dlzka trestu je menej ako 10 rokov a zaroven
@@ -409,10 +409,10 @@ from s_osoba os join s_odsudena_osoba odo on(os.rod_cislo = odo.rod_cislo)
     join s_typ_pripadu tp on(pr.id_typ_pripadu = tp.id_typ_pripadu)
 where (months_between(sysdate,add_months(odo.dat_nastupu, odo.dlzka_trestu*12)) < 0)
     and (round(trunc(months_between(sysdate, odo.dat_nastupu)/12)/odo.dlzka_trestu*100,2) >= 75)
-    and (tp.druh_pripadu in ('usmrtenie','ublíženie na zdraví', 'podplácanie'))
+    and (tp.druh_pripadu in ('usmrtenie','ublï¿½enie na zdravï¿½', 'podplï¿½canie'))
     and (odo.dlzka_trestu < 10);
     
---9) Dlhodobá štatistika poètu osôb vo výkone trestu (poèet za rok). 
+--9) Dlhodobï¿½ ï¿½tatistika poï¿½tu osï¿½b vo vï¿½kone trestu (poï¿½et za rok). 
 create or replace procedure proc_poc_osob_vo_vazani is
  min_rok number;
  poc_osob number;
@@ -431,7 +431,7 @@ end;
 
 execute proc_poc_osob_vo_vazani;
 
---10) Roèné náklady na mzdy pracovníkov PZ
+--10) Roï¿½nï¿½ nï¿½klady na mzdy pracovnï¿½kov PZ
 --select za rocne naklady konkretnych PZ za urcity rok na vsetkych zamestnancoch
 create or replace procedure proc_rocne_naklady(rok char) is
  cursor cur_nakl is

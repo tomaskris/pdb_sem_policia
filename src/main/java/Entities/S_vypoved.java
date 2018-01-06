@@ -4,7 +4,9 @@ import java.math.BigDecimal;
 import java.sql.Blob;
 
 public class S_vypoved extends MyDataClass {
+    private BigDecimal id_vypovede;
     private String typ_vypovede;
+    private String typ_suboru;
     private Blob zaznam;
 
     public S_vypoved() {
@@ -28,13 +30,33 @@ public class S_vypoved extends MyDataClass {
         this.zaznam = zaznam;
     }
 
+    public String getTyp_suboru() {
+        return typ_suboru;
+    }
+
+    public void setTyp_suboru(String typ_suboru) {
+        this.typ_suboru = typ_suboru;
+    }
+
+    public BigDecimal getId_vypovede() {
+        return id_vypovede;
+    }
+
+    public void setId_vypovede(BigDecimal id_vypovede) {
+        this.id_vypovede = id_vypovede;
+    }
+
     @Override
     public Object getValueAt(int index) {
         switch (index) {
             case 0:
-                return typ_vypovede;
+                return id_vypovede;
             case 1:
-                return zaznam;
+                return typ_vypovede;
+            case 2:
+                return typ_suboru;
+            case 3:
+                return zaznam == null ? "" : "Zaznam";
             default:
                 return null;
         }
@@ -44,8 +66,12 @@ public class S_vypoved extends MyDataClass {
     public String getValueName(int index) {
         switch (index) {
             case 0:
-                return "typ_vypovede";
+                return "ID";
             case 1:
+                return "typ vypovede";
+            case 2:
+                return "typ suboru";
+            case 3:
                 return "zaznam";
             default:
                 return null;
@@ -54,6 +80,6 @@ public class S_vypoved extends MyDataClass {
 
     @Override
     public int numberOfAttr() {
-        return 2;
+        return 4;
     }
 }

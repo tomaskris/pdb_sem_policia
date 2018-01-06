@@ -1,6 +1,8 @@
 package main.java.gui;
 
 
+import main.java.DbAccess.DBAccess;
+import main.java.DbAccess.DB_Stats;
 import main.java.gui.TableModels.MyTableModel;
 import main.java.helper.DatabaseSelecter;
 
@@ -18,19 +20,19 @@ public class Main extends javax.swing.JDialog {
     private JTabbedPane tabbedPane1;
     private JTable myTable;
     private JPanel Mesta;
-    private JPanel tables;
+    private Tables tables;
+    private JPanel stats;
 
     public Main() {
         setContentPane(contentPane);
         setModal(true);
         getRootPane().setDefaultButton(buttonOK);
         setPreferredSize(new Dimension(800,640));
+        tables = new Tables();
+        tabbedPane1.add("Policia",tables.getPanelPolicia());
+        tabbedPane1.add("Pripady", tables.getPanelPripady());
+        tabbedPane1.add("Osoby",tables.getPanelOsoby());
 
-        buttonOK.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent e) {
-                onOK();
-            }
-        });
     }
 
 
@@ -38,7 +40,8 @@ public class Main extends javax.swing.JDialog {
 
     private void onOK() {
         // add your code here
-        dispose();
+        DB_Stats access = new DB_Stats();
+        access.getPripadyData("C:\\Users\\Chudj\\Desktop\\TEST\\text.pdf");
     }
 
     public static void main(String[] args) {
@@ -51,6 +54,6 @@ public class Main extends javax.swing.JDialog {
 
     private void createUIComponents() {
         // TODO: place custom component creation code here
-        tables = new Tables().getPanel();
+        stats = new Stats().getPanel();
     }
 }

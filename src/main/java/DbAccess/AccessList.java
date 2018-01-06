@@ -24,6 +24,9 @@ public class AccessList {
             map.put(S_typ_funkcie.class, new DB_typ_funkcie());
             map.put(S_vaznica.class, new DB_vaznica());
             map.put(S_zamestnanec.class, new DB_zamestnanec());
+            map.put(S_typ_pripadu.class, new DB_typ_pripadu());
+
+
         }
         return map;
     }

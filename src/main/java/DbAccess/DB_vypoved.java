@@ -43,33 +43,24 @@ public class DB_vypoved implements DBAccess {
     public void insert(MyDataClass object) {
         S_vypoved obj = (S_vypoved) object;
         try (Connection connection = Connector.getConnection()) {
-            CallableStatement stmnt = connection.prepareCall("INSERT INTO table(select vypoved from s_osoba_pripadu where id_osoby = ?) VALUES " +
-                    "T_REC_VYPOVED(?,? )");
+            CallableStatement stmnt = connection.prepareCall("BEGIN proc_vytvor_vypoved(?, ?, ?, ?); END;");
             stmnt.setBigDecimal(1, this.id_osoby);
             stmnt.setString(2, obj.getTyp_vypovede());
-            stmnt.setBlob(3, obj.getZaznam());
-            stmnt.execute();
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-        try (Connection connection = Connector.getConnection()) {
-            CallableStatement stmnt = connection.prepareCall("BEGIN proc_vytvor_vypoved(?, ?, ?); END;");
-            stmnt.setBigDecimal(1, this.id_osoby);
-            stmnt.setString(2, obj.getTyp_vypovede());
-            stmnt.setBlob(3, obj.getZaznam());
+            stmnt.setString(3, obj.getTyp_suboru());
+            stmnt.setBlob(4, obj.getZaznam());
             stmnt.execute();
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public void insert(BigDecimal id, String typ, InputStream in) {
+    public void insert(BigDecimal id, String typ,String pripona, InputStream in) {
         try (Connection connection = Connector.getConnection()) {
-            CallableStatement stmnt = connection.prepareCall("INSERT INTO table(select vypoved from s_osoba_pripadu where id_osoby = ?) VALUES (" +
-                    "T_REC_VYPOVED(?, ?))");
+            CallableStatement stmnt = connection.prepareCall("BEGIN proc_vytvor_vypoved(?, ?, ?, ?); END;");
             stmnt.setBigDecimal(1, id);
             stmnt.setString(2, typ);
-            stmnt.setBinaryStream(3, in);
+            stmnt.setString(3, pripona);
+            stmnt.setBinaryStream(4, in);
             stmnt.execute();
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -94,7 +85,7 @@ public class DB_vypoved implements DBAccess {
         try (Connection connection = Connector.getConnection()) {
             CallableStatement stmnt = connection.prepareCall("BEGIN proc_vymaz_vypoved(?, ?); END;");
             stmnt.setBigDecimal(1, this.id_osoby);
-            stmnt.setBlob(2, ((S_vypoved) object).getZaznam());
+            stmnt.setBigDecimal(2, ((S_vypoved) object).getId_vypovede());
             stmnt.execute();
         } catch (SQLException e) {
             throw new RuntimeException(e);

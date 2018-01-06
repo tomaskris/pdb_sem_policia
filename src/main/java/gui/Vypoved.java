@@ -58,8 +58,7 @@ public class Vypoved extends JDialog {
                     File file = fileChooser.getSelectedFile();
 
                     Blob blob = selectedObject.getZaznam();
-                    File extention = new File(file.getAbsolutePath() + getExtention());
-                    boolean stav = file.renameTo(extention);
+                    File extention = new File(file.getAbsolutePath() + selectedObject.getTyp_suboru());
 
                     try {
                         InputStream in = blob.getBinaryStream();
@@ -84,7 +83,7 @@ public class Vypoved extends JDialog {
             NewVypoved vypovedDialog = new NewVypoved();
             VypovedData vypovedData =  vypovedDialog.getVypoved();
             if(vypovedData != null){
-                dbAccess.insert(id_osoby,vypovedData.getTyp_vypovede(), vypovedData.getZaznam());
+                dbAccess.insert(id_osoby,vypovedData.getTyp_vypovede(),vypovedData.getTyp_suboru(), vypovedData.getZaznam());
                 loadData();
             }
         });
@@ -97,17 +96,6 @@ public class Vypoved extends JDialog {
         });
     }
 
-    private String getExtention() {
-        switch (selectedObject.getTyp_vypovede()){
-            case "T":
-                return ".txt";
-            case "V":
-                return ".mp4";
-            case "F":
-                return ".jpg";
-        }
-        return "";
-    }
 
     private void loadData() {
         new SwingWorker<List, RuntimeException>() {

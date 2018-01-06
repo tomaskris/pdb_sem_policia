@@ -2,9 +2,8 @@ package main.java.DbAccess;
 
 import main.java.Connector;
 import main.java.Entities.MyDataClass;
-import main.java.Entities.S_region;
 import main.java.Entities.S_zamestnanec;
-import main.java.Utils;
+import main.java.Utils.Utils;
 import main.java.helper.DatabaseSelecter;
 
 import java.beans.IntrospectionException;

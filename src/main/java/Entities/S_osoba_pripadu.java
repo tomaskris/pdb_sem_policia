@@ -79,7 +79,7 @@ public class S_osoba_pripadu extends MyDataClass {
             case 3:
                 return typ_osoby;
             case 4:
-                return vypoved;
+                return vypoved == null ? "" : "Obsahuje subory.";
             default:
                 return null;
         }

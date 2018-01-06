@@ -37,10 +37,9 @@ public class DB_obvod implements DBAccess {
     public void insert(MyDataClass object) {
         S_obvod obj = (S_obvod) object;
         try (Connection connection = Connector.getConnection()) {
-            CallableStatement stmnt = connection.prepareCall("BEGIN proc_vytvor_obvod(?, ?, ?); END;");
-            stmnt.setBigDecimal(1, obj.getId_obvodu());
-            stmnt.setString(2, obj.getPsc());
-            stmnt.setString(3, obj.getNazov());
+            CallableStatement stmnt = connection.prepareCall("BEGIN proc_vytvor_obvod(?, ?); END;");
+            stmnt.setString(1, obj.getPsc());
+            stmnt.setString(2, obj.getNazov());
             stmnt.execute();
         } catch (SQLException e) {
             throw new RuntimeException(e);

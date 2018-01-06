@@ -153,7 +153,7 @@ end;
 /
 
 execute proc_insert_tab_osoba;
---select * from s_osoba;
+select * from s_osoba;
 
 
 commit;
@@ -483,19 +483,19 @@ begin
 end;
 /
 
---vytvorenie sekvencie
-create sequence sekv_id_vypovede
-increment by 1 start with 1;
---drop trigger trig_zamestnanec_inc_id;
---trigger pre inkrementovanie ID pre tabulku s_region
-create or replace trigger trig_vypoved_inc_id
- before insert on s_vypoved
- referencing new as novy
- for each row
-begin
- select sekv_id_vypovede.nextval into :novy.id_vypovede from dual;
-end;
-/
+----vytvorenie sekvencie
+--create sequence sekv_id_vypovede
+--increment by 1 start with 1;
+----drop trigger trig_zamestnanec_inc_id;
+----trigger pre inkrementovanie ID pre tabulku s_region
+--create or replace trigger trig_vypoved_inc_id
+-- before insert on s_vypoved
+-- referencing new as novy
+-- for each row
+--begin
+-- select sekv_id_vypovede.nextval into :novy.id_vypovede from dual;
+--end;
+--/
 
 --vytvorenie sekvencie
 create sequence sekv_id_hladanej
@@ -539,23 +539,23 @@ begin
 end;
 /
 
-create or replace procedure proc_insert_vypoved(osoba integer)
- is
- typ Char(1);
- rec blob;
-begin
- case round(dbms_random.value(1,3))
-  when 1 then
-   typ := 'T';
-  when 2 then
-   typ := 'F';
-  else
-   typ := 'V';
- end case;
- 
- insert into s_vypoved(id_osoby, typ_vypovede, zaznam) values(osoba, typ, rec);
-end;
-/
+--create or replace procedure proc_insert_vypoved(osoba integer)
+-- is
+-- typ Char(1);
+-- rec blob;
+--begin
+-- case round(dbms_random.value(1,3))
+--  when 1 then
+--   typ := 'T';
+--  when 2 then
+--   typ := 'F';
+--  else
+--   typ := 'V';
+-- end case;
+-- 
+-- insert into s_vypoved(id_osoby, typ_vypovede, zaznam) values(osoba, typ, rec);
+--end;
+--/
 
 create or replace procedure proc_insert_odsudeny(pripad integer, rc s_osoba.rod_cislo%type, dat_zac_prip date, dat_ukon_hlad date)
  is
@@ -655,61 +655,61 @@ begin
   rc := get_random_osoba;
   typ := 'S';
     --nahodne si vygenerujem pocet vypovedi
-  poc_vypovedi := round(dbms_random.value(0,1));
-  if(poc_vypovedi = 1) then
-    --insertnem osobu pripadu aj s nahodnou vypovedou
-    insert into s_osoba_pripadu(id_pripadu, rod_cislo, typ_osoby, vypoved) values(pripad, rc, typ, t_vypoved(get_rand_t_rec_vypoved));
-  else 
+--  poc_vypovedi := round(dbms_random.value(0,1));
+--  if(poc_vypovedi = 1) then
+--    --insertnem osobu pripadu aj s nahodnou vypovedou
+--    insert into s_osoba_pripadu(id_pripadu, rod_cislo, typ_osoby, vypoved) values(pripad, rc, typ, t_vypoved(get_rand_t_rec_vypoved));
+--  else 
     --insertnem osobu pripadu bez vypovede
     insert into s_osoba_pripadu(id_pripadu, rod_cislo, typ_osoby) values(pripad, rc, typ);
-  end if;
+--  end if;
  end loop;
 end;
 /
 
---funkcia ti vrati nahodny record pre blob (konkretny fotku, video alebo text)
-create or replace function get_rand_t_rec_vypoved
- return t_rec_vypoved
-is
- typ integer;
- polozka integer;
- vypoved t_rec_vypoved;
-begin
- typ := round(dbms_random.value(1,3));
- polozka := round(dbms_random.value(1,3));
- case typ
-  when 1 then 
-   case polozka 
-    when 1 then
-     vypoved := t_rec_vypoved('F',get_local_binary_data('BLOB_FILES_POLICE','fotka1.jpg'));
-    when 2 then
-     vypoved := t_rec_vypoved('F',get_local_binary_data('BLOB_FILES_POLICE','fotka2.jpg'));
-    else 
-     vypoved := t_rec_vypoved('F',get_local_binary_data('BLOB_FILES_POLICE','fotka3.jpg'));
-   end case;
-  when 2 then
-   case polozka 
-    when 1 then
-     vypoved := t_rec_vypoved('V',get_local_binary_data('BLOB_FILES_POLICE','video1.mp4'));
-    when 2 then
-     vypoved := t_rec_vypoved('V',get_local_binary_data('BLOB_FILES_POLICE','video2.mp4'));
-    else 
-     vypoved := t_rec_vypoved('V',get_local_binary_data('BLOB_FILES_POLICE','video3.mp4'));
-   end case;
-  else 
-   case polozka 
-    when 1 then
-     vypoved := t_rec_vypoved('T',get_local_binary_data('BLOB_FILES_POLICE','text1.txt'));
-    when 2 then
-     vypoved := t_rec_vypoved('T',get_local_binary_data('BLOB_FILES_POLICE','text2.txt'));
-    else 
-     vypoved := t_rec_vypoved('T',get_local_binary_data('BLOB_FILES_POLICE','text3.txt'));
-   end case;
- end case;
- 
- return vypoved;
-end;
-/
+----funkcia ti vrati nahodny record pre blob (konkretny fotku, video alebo text)
+--create or replace function get_rand_t_rec_vypoved
+-- return t_rec_vypoved
+--is
+-- typ integer;
+-- polozka integer;
+-- vypoved t_rec_vypoved;
+--begin
+-- typ := round(dbms_random.value(1,3));
+-- polozka := round(dbms_random.value(1,3));
+-- case typ
+--  when 1 then 
+--   case polozka 
+--    when 1 then
+--     vypoved := t_rec_vypoved('F',get_local_binary_data('BLOB_FILES_POLICE','fotka1.jpg'));
+--    when 2 then
+--     vypoved := t_rec_vypoved('F',get_local_binary_data('BLOB_FILES_POLICE','fotka2.jpg'));
+--    else 
+--     vypoved := t_rec_vypoved('F',get_local_binary_data('BLOB_FILES_POLICE','fotka3.jpg'));
+--   end case;
+--  when 2 then
+--   case polozka 
+--    when 1 then
+--     vypoved := t_rec_vypoved('V',get_local_binary_data('BLOB_FILES_POLICE','video1.mp4'));
+--    when 2 then
+--     vypoved := t_rec_vypoved('V',get_local_binary_data('BLOB_FILES_POLICE','video2.mp4'));
+--    else 
+--     vypoved := t_rec_vypoved('V',get_local_binary_data('BLOB_FILES_POLICE','video3.mp4'));
+--   end case;
+--  else 
+--   case polozka 
+--    when 1 then
+--     vypoved := t_rec_vypoved('T',get_local_binary_data('BLOB_FILES_POLICE','text1.txt'));
+--    when 2 then
+--     vypoved := t_rec_vypoved('T',get_local_binary_data('BLOB_FILES_POLICE','text2.txt'));
+--    else 
+--     vypoved := t_rec_vypoved('T',get_local_binary_data('BLOB_FILES_POLICE','text3.txt'));
+--   end case;
+-- end case;
+-- 
+-- return vypoved;
+--end;
+--/
 
 create or replace procedure proc_rand_priestupok(pripad integer)
  is
@@ -721,7 +721,7 @@ create or replace procedure proc_rand_priestupok(pripad integer)
  poc_vypovedi integer;
 begin
  --nahodne vygenerujem pocet obvinenych z priestupku
- poc_osob_pripadu := round(dbms_random.value(1,3));
+ poc_osob_pripadu := round(dbms_random.value(1,4));
  for i in 1..poc_osob_pripadu loop
   --nahodne vygenerujem osobu_pripadu
   rc := get_random_osoba;
@@ -740,14 +740,14 @@ begin
   rc := get_random_osoba;
   typ := 'S';
     --nahodne si vygenerujem pocet vypovedi
-  poc_vypovedi := round(dbms_random.value(0,1));
-  if(poc_vypovedi = 1) then
-    --insertnem osobu pripadu aj s nahodnou vypovedou
-    insert into s_osoba_pripadu(id_pripadu, rod_cislo, typ_osoby, vypoved) values(pripad, rc, typ, t_vypoved(get_rand_t_rec_vypoved));
-  else 
+--  poc_vypovedi := round(dbms_random.value(0,1));
+--  if(poc_vypovedi = 1) then
+--    --insertnem osobu pripadu aj s nahodnou vypovedou
+--    insert into s_osoba_pripadu(id_pripadu, rod_cislo, typ_osoby, vypoved) values(pripad, rc, typ, t_vypoved(get_rand_t_rec_vypoved));
+--  else 
     --insertnem osobu pripadu bez vypovede
     insert into s_osoba_pripadu(id_pripadu, rod_cislo, typ_osoby) values(pripad, rc, typ);
-  end if;
+--  end if;
  end loop;
 end;
 /
@@ -769,7 +769,7 @@ create or replace procedure proc_insert_pripady is
  size_tab_typ_pripad integer;
  cur_id_pripad integer;
 begin
- for prip in 1..500 loop
+ for prip in 1..2000 loop
  --PRE JEDEN PRIPAD V DANY DATUM 
  --pocet riadov tabulky s_obvod
  select count(*) into size_tab_obvod from s_obvod;

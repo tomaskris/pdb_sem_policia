@@ -68,7 +68,6 @@ public class WidgetConfig {
             }
             return w;
         });
-
     }
 
     public static class DateWidgetBuilder implements WidgetBuilder<Component, SwingMetawidget> {

@@ -1,5 +1,5 @@
 --DROPNUTIE TABULIEK
-/*
+
 Drop table s_obzalovana_osoba;
 Drop table s_historia_funkcii;
 Drop table s_vypoved;
@@ -32,7 +32,7 @@ drop sequence sekv_id_odsudeneho;
 drop sequence sekv_id_obzalovaneho;
 drop sequence sekv_id_obvod;
 drop table pom_tab_psc;
-*/
+
 
 --VYTVORENIE TABULIEK
 
@@ -57,7 +57,6 @@ primary key (id_obvodu)
 Create table s_mesto (
 	psc Char (5) NOT NULL ,
 	id_regionu Integer NOT NULL ,
-	id_obvodu Integer NOT NULL ,
 	nazov Varchar2 (30) NOT NULL ,
 primary key (psc) 
 ) 
@@ -111,8 +110,10 @@ primary key (id_odsudeneho)
 /
 
 create or replace type t_rec_vypoved as object (
+  id_vypovede Integer,
   typ_vypovede Char(1),
-  zaznam Blob
+  zaznam Blob,
+  typ_suboru varchar(20)
 );
 /
 create or replace type t_vypoved is table of t_rec_vypoved
@@ -221,9 +222,6 @@ Alter table s_zamestnanec add  foreign key (id_obvodu) references s_obvod (id_ob
 /
 
 Alter table s_pripad add  foreign key (id_obvodu) references s_obvod (id_obvodu); 
-/
-
-Alter table s_mesto add  ( constraint tab_mesto_fk foreign key (id_obvodu) references s_obvod (id_obvodu) deferrable ); 
 /
 
 Alter table s_obvod add  ( constraint tab_obvod_fk foreign key (psc) references s_mesto (psc) deferrable );  
