@@ -3,9 +3,7 @@ package main.java.DbAccess;
 import main.java.Connector;
 import main.java.Entities.MyDataClass;
 import main.java.Entities.S_historia_funkcii;
-import main.java.Entities.S_pripad;
-import main.java.Entities.S_region;
-import main.java.Utils;
+import main.java.Utils.Utils;
 import main.java.helper.DatabaseSelecter;
 
 import java.beans.IntrospectionException;

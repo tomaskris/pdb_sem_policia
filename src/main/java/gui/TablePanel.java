@@ -60,7 +60,7 @@ public class TablePanel extends JDialog {
         }else{
             vypovedeBtn.setVisible(false);
         }
-
+        loadData();
     }
 
     protected MyTableModel getTableModel() {

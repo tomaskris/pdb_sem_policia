@@ -3,6 +3,7 @@ package main.java.gui.dialogs;
 import main.java.Entities.S_vypoved;
 import main.java.gui.Vypoved;
 import main.java.helper.VypovedData;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 
 import javax.imageio.ImageIO;
@@ -70,17 +71,6 @@ public class NewVypoved extends JDialog {
 
     private void selectFile() {
         this.fileChooser = new JFileChooser();
-        fileChooser.setFileFilter(new FileFilter() {
-            @Override
-            public boolean accept(File f) {
-                return acceptFile(f);
-            }
-
-            @Override
-            public String getDescription() {
-                return null;
-            }
-        });
         int returnVal = fileChooser.showOpenDialog(fileChooserPanel);
         if(returnVal == JFileChooser.APPROVE_OPTION){
             file = fileChooser.getSelectedFile();
@@ -92,7 +82,8 @@ public class NewVypoved extends JDialog {
         setVisible(true);
         if(file != null){
             try {
-                return new VypovedData(getVypovedTyp(),new FileInputStream(file));
+                String fileExtention = FilenameUtils.getExtension(file.getName());
+                return new VypovedData(getVypovedTyp(),"."+fileExtention,new FileInputStream(file));
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
             }
@@ -125,37 +116,4 @@ public class NewVypoved extends JDialog {
         dispose();
     }
 
-
-    public final static String jpg = "jpg";
-    public final static String mp4 = "mp4";
-    public final static String txt = "txt";
-
-    public boolean acceptFile(File f) {
-        if (f.isDirectory()) {
-            return true;
-        }
-
-        String extension = getExtension(f);
-        if (extension != null) {
-            if (extension.equals(jpg) ||
-                    extension.equals(mp4) ||
-                    extension.equals(txt)) {
-                return true;
-            } else {
-                return false;
-            }
-        }
-        return false;
-    }
-
-    public static String getExtension(File f) {
-        String ext = null;
-        String s = f.getName();
-        int i = s.lastIndexOf('.');
-
-        if (i > 0 &&  i < s.length() - 1) {
-            ext = s.substring(i+1).toLowerCase();
-        }
-        return ext;
-    }
 }

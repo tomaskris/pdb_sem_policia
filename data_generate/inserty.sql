@@ -15,7 +15,8 @@ desc T_REC_VYPOVED;
 
 
 
-
+create sequence sekv_vypoved_id
+increment by 1 start with 1;
 
 
 create sequence sekv_typ_funkcie
@@ -46,6 +47,10 @@ end;
 /
 
 --insert regionov (u nas budu regiony iba zo Slovenska a to aj tak iba zopar)
+--select * from s_region;
+--update s_region
+--set id_regionu = 2
+--where nazov LIKE 'Liptov';
 insert into s_region values(1, 'Orava');
 insert into s_region values(2, 'Liptov');
 --delete from s_region;
@@ -55,6 +60,7 @@ alter session set constraints = deferred;
 
 --insert obvodov
 
+drop sequence sekv_id_obvod;
 --vytvorenie sekvencie
 create sequence sekv_id_obvod
 increment by 1 start with 1;
@@ -71,6 +77,8 @@ end;
 
 --insert obvodov a miest
 
+
+
 --pre region orava
 --obvod OO PZ Dolný Kubín
 insert into s_obvod(psc, nazov) values('02601', 'OO PZ Dolný Kubín');
@@ -82,6 +90,7 @@ insert into s_mesto values('02741', 1, 1, 'Oravský Podzámok');
 insert into s_mesto values('02754', 1, 1, 'Velièná');
 insert into s_mesto values('02705', 1, 1, 'Zázrivá');
 insert into s_mesto values('02721', 1, 1, 'Žaškov');
+
 
 --obvod OO PZ Námestovo
 insert into s_obvod(psc, nazov) values('02901', 'OO PZ Námestovo');
@@ -211,5 +220,6 @@ insert into s_typ_pripadu values (11, 'P', 'rušenie noèného k¾udu');
 insert into s_typ_pripadu values (12, 'P', 'nepravdivá svedecká výpoveï');
 insert into s_typ_pripadu values (13, 'P', 'prekroèenie rýchlosti');
 insert into s_typ_pripadu values (14, 'P', 'predaj alkoholických nápojov osobám mladším ako 18 rokov');
+
 
 commit;

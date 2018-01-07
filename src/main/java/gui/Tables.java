@@ -9,49 +9,73 @@ import java.util.List;
 public class Tables extends JDialog {
     private JPanel contentPane;
     private JTabbedPane tabPanel;
-    private JButton buttonOK;
-    private List<Class> tables;
+    private JPanel pripadyPnl;
+    private JPanel osobyPnl;
+    private JTabbedPane pripady;
+    private JTabbedPane osoby;
+    private JTabbedPane policia;
+    private JPanel policiaPNL;
 
     public Tables() {
         setContentPane(contentPane);
         setModal(true);
-        getRootPane().setDefaultButton(buttonOK);
-        tables = new ArrayList<>();
-
-        /*
-        tables.add(S_biom_udaje.class);
-
-        tables.add(S_historia_funkcii.class);
-        tables.add(S_hladana_osoba.class);
-        tables.add(S_mesto.class);
-        tables.add(S_obvod.class);
-        tables.add(S_obzalovana_osoba.class);
-        tables.add(S_odsudena_osoba.class);
-        tables.add(S_osoba.class);
-*/
-        tables.add(S_pripad.class);
-
-/*
-        tables.add(S_osoba_pripadu.class);
-        tables.add(S_region.class);
-        tables.add(S_typ_funkcie.class);
-
-        tables.add(S_typ_pripadu.class);
-        tables.add(S_vaznica.class);
-        tables.add(S_zamestnanec.class);
-        */
 
 
 
-        int index = 0;
-        for (Class dataClass : tables){
-            tabPanel.add(new TablePanel(dataClass).getPanel());
-            tabPanel.setTitleAt(index,dataClass.getSimpleName());
-            index++;
-        }
+
+        osoby.add(new TablePanel(S_osoba.class).getPanel());
+        osoby.setTitleAt(0,"Osoby");
+        osoby.add(new TablePanel(S_osoba_pripadu.class).getPanel());
+        osoby.setTitleAt(1,"Osoby pripadu");
+        osoby.add(new TablePanel(S_obzalovana_osoba.class).getPanel());
+        osoby.setTitleAt(2,"Obzalovane osoby");
+        osoby.add(new TablePanel(S_odsudena_osoba.class).getPanel());
+        osoby.setTitleAt(3,"Odsudene osoby");
+        osoby.add(new TablePanel(S_hladana_osoba.class).getPanel());
+        osoby.setTitleAt(4,"Hladane osoby");
+        osoby.add(new TablePanel(S_biom_udaje.class).getPanel());
+        osoby.setTitleAt(5,"Biometricke udaje");
+
+        pripady.add(new TablePanel(S_pripad.class).getPanel());
+        pripady.setTitleAt(0,"Pripady");
+        pripady.add(new TablePanel(S_typ_pripadu.class).getPanel());
+        pripady.setTitleAt(1,"Typy Pripadov");
+
+        policia.add(new TablePanel(S_zamestnanec.class).getPanel());
+        policia.setTitleAt(0,"Zamestnaneci");
+        policia.add(new TablePanel(S_typ_funkcie.class).getPanel());
+        policia.setTitleAt(1,"Typy funckii");
+        policia.add(new TablePanel(S_historia_funkcii.class).getPanel());
+        policia.setTitleAt(2,"Historia funkcii");
+        policia.add(new TablePanel(S_vaznica.class).getPanel());
+        policia.setTitleAt(3,"Väznice");
+        policia.add(new TablePanel(S_obvod.class).getPanel());
+        policia.setTitleAt(4,"Policajné obvody");
+        policia.add(new TablePanel(S_mesto.class).getPanel());
+        policia.setTitleAt(5,"Mesta");
+        policia.add(new TablePanel(S_region.class).getPanel());
+        policia.setTitleAt(6,"Regiony");
+
+
+
     }
 
     public JPanel getPanel(){
         return contentPane;
     }
+
+    public JPanel getPanelPolicia(){
+        return policiaPNL;
+    }
+
+    public JPanel getPanelPripady(){
+        return pripadyPnl;
+    }
+
+    public JPanel getPanelOsoby(){
+        return osobyPnl;
+    }
+
+
+
 }
