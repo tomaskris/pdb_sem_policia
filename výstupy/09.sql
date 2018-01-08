@@ -1,3 +1,7 @@
+
+-- Dlhodobá štatistika počtu osôb vo výkone trestu (počet za rok).
+
+
 create or replace type zaznam_o_vykone_za_rok is object(
   rok number,
   pocet number

@@ -13,4 +13,4 @@ select reg.nazov as region,
     where pr.dat_zac between ? and ?
     group by reg.nazov
     order by objasnenost_spolu desc;
-    /
+/

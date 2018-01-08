@@ -1,3 +1,5 @@
+-- Ročné náklady na mzdy pracovníkov PZ
+
 create or replace type zaznam_o_mzdach_za_rok is object(
   rok number,
   suma number
@@ -46,6 +48,7 @@ end;
 /
 
 select * from table(proc_rocne_naklady_spolu());
+
 
 select * from s_osoba_pripadu
 where vypoved is not null
