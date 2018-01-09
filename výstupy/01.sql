@@ -282,3 +282,6 @@ begin
    return l_xmltype.getClobVal;
 end;
 /
+
+
+select proc_prehlad_pripadov_xml from dual;

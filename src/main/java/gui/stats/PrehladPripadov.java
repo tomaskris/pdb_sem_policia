@@ -78,6 +78,7 @@ public class PrehladPripadov extends JDialog implements LoadDataForTable {
         };
 
         if(cesta != null){
+            status.setText("Downloading...");
             sw.execute();
         }
 

@@ -20,9 +20,6 @@ import java.io.IOException;
 import com.itextpdf.io.font.FontConstants;
 import com.itextpdf.layout.Document;
 
-import static com.sun.javafx.tools.packager.DeployParams.RunMode.EMBEDDED;
-
-
 public class CreatePdfHandler extends DefaultHandler {
     private String destination;
     private PdfFont fontNormal;
